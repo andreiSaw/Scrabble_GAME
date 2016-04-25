@@ -15,7 +15,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void butOnClick(View view) throws IllegalStateException {
-        //((TextView) findViewById(R.id.textview)).setText("Privet World!");
         Intent intent = new Intent(MainActivity.this, GameActivity.class);
         MainActivity.this.startActivity(intent);
     }

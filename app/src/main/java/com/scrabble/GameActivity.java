@@ -1,16 +1,9 @@
 package com.scrabble;
 
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.RelativeLayout;
-
 import java.io.DataInputStream;
 import java.io.IOException;
 
@@ -20,6 +13,7 @@ public class GameActivity extends AppCompatActivity {
     Dictionary dic = new Dictionary();
     int[][] masOfIDs = new int[7][7];
     int dopID;
+    String _letterBuf="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,20 +32,29 @@ public class GameActivity extends AppCompatActivity {
         //
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
-                final Button button = (Button) findViewById(masOfIDs[i][j]);
-
+                final MyCustomedButton button = (MyCustomedButton) findViewById(masOfIDs[i][j]);
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        if (button.getHint() != "Pressed") {
-                            button.setHint("Pressed");
-
-                        } else {
-
-                            button.setHint("");
+                        if(_letterBuf!=""&&button.getText()==" ")
+                        {
+                            button.setText(_letterBuf);
+                            _letterBuf="";
                         }
                     }
                 });
             }
+        }
+        for(int i=0;i<POOL_SIZE;++i)
+        {
+                final MyCustomedButton button=(MyCustomedButton)findViewById(bottomLineIDs[i]);
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    _letterBuf=button.getText().toString();
+                    button.setText(" ");
+                }
+            });
+
         }
     }
 
@@ -59,8 +62,8 @@ public class GameActivity extends AppCompatActivity {
         String str = dic.getRequiredSize(7);
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        for (int i = 0; i < POOL_SIZE; i++) {
-            Button bt = new Button(this);
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            MyCustomedButton bt = new MyCustomedButton(this);
             bt.setId(++dopID);
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(150, 150);
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -106,15 +109,15 @@ public class GameActivity extends AppCompatActivity {
         masOfIDs[0][0] = curID;
 
 //razmetka stranicy
-        for (int i = 0; i < POOL_SIZE; i++) {
-            for (int j = 0; j < POOL_SIZE; j++) {
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(150, 150);
                 if (i != 0 && j != 0) {
                     params.addRule(RelativeLayout.RIGHT_OF, masOfIDs[i][j - 1]);
                     params.addRule(RelativeLayout.BELOW, masOfIDs[i - 1][j]);
                     params.addRule(RelativeLayout.ALIGN_LEFT);
 
-                    Button bt = new Button(this);
+                    MyCustomedButton bt = new MyCustomedButton(this);
                     bt.setText(" ");
 
                     bt.setId(curID++);
@@ -123,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j != 0) {
-                    Button bt = new Button(this);
+                    MyCustomedButton bt = new MyCustomedButton(this);
                     bt.setText(" ");
 
                     bt.setId(curID++);
@@ -134,7 +137,7 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i != 0 && j == 0) {
-                    Button bt = new Button(this);
+                    MyCustomedButton bt = new MyCustomedButton(this);
                     bt.setText(" ");
 
                     bt.setId(curID++);
@@ -145,14 +148,13 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j == 0) {
-                    //dopID = R.id.button00;
-                    Button bt = (Button) findViewById(curID++);
+//exception
+                    MyCustomedButton bt = ((MyCustomedButton)findViewById(curID++));
                     params.addRule(RelativeLayout.ALIGN_PARENT_START);
                     bt.setLayoutParams(params);
                 }
             }
         }
-        //dopID = masOfIDs[POOL_SIZE - 1][POOL_SIZE - 1];
     }
 }
 
