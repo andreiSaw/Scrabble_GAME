@@ -3,6 +3,8 @@ package com.scrabble;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 
 import java.io.DataInputStream;
@@ -26,8 +28,39 @@ public class GameActivity extends AppCompatActivity {
         loadTable();
         dic.loadDic(this.getResources().openRawResource(R.raw.words));
         loadBottomLine();
+        loadSubmitButton();
         game();
 
+    }
+
+    private void loadSubmitButton() {
+        Button btn=new Button(this);
+        btn.setText("S U B M I T");
+        btn.setBackgroundResource(R.drawable.button_success_selector);
+        RelativeLayout relativeLayout=(RelativeLayout)findViewById(R.id.secondRelativeLayout);
+        RelativeLayout.LayoutParams params=new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT,RelativeLayout.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        params.addRule(RelativeLayout.ABOVE,bottomLineIDs[POOL_SIZE/2]);
+        btn.setLayoutParams(params);
+        relativeLayout.addView(btn);
+        //checking
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyButtton x;
+                for(int i=0;i<POOL_SIZE;++i)
+                {
+                    for(int j=0;j<POOL_SIZE;++j)
+                    {
+                        x=(MyButtton)findViewById(masOfIDs[i][j]);
+                        if(!x.isEmpty()&&!x.isLocked())
+                        {
+                            x.setLocked(true);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     private void game() {

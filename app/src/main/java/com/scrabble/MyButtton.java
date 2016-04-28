@@ -8,7 +8,6 @@ import android.widget.Button;
 
 import java.util.Objects;
 
-
 public class MyButtton extends Button
 
 {
