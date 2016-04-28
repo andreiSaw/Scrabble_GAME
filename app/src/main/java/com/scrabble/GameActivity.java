@@ -4,8 +4,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.RelativeLayout;
+
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 public class GameActivity extends AppCompatActivity {
     int[] bottomLineIDs = new int[7];
@@ -13,7 +15,7 @@ public class GameActivity extends AppCompatActivity {
     Dictionary dic = new Dictionary();
     int[][] masOfIDs = new int[7][7];
     int dopID;
-    String _letterBuf="";
+    String _letterBuf = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,29 +34,35 @@ public class GameActivity extends AppCompatActivity {
         //
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
-                final MyCustomedButton button = (MyCustomedButton) findViewById(masOfIDs[i][j]);
+                final MyButtton button = (MyButtton) findViewById(masOfIDs[i][j]);
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        if(_letterBuf!=""&&button.getText()==" ")
-                        {
+                        if (!Objects.equals(_letterBuf, "") && button.isEmpty()) {
+                            //if (_letterBuf != "" && button.getText() == " ") {
                             button.setText(_letterBuf);
-                            _letterBuf="";
+                            _letterBuf = "";
+                        } else if (!button.isEmpty() && !button.isLocked() && Objects.equals(_letterBuf, "")) {
+                            _letterBuf = button.getText().toString();
+                            button.setText(" ");
                         }
                     }
                 });
             }
         }
-        for(int i=0;i<POOL_SIZE;++i)
-        {
-                final MyCustomedButton button=(MyCustomedButton)findViewById(bottomLineIDs[i]);
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            final MyButtton button = (MyButtton) findViewById(bottomLineIDs[i]);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    _letterBuf=button.getText().toString();
-                    button.setText(" ");
+                    if (Objects.equals(_letterBuf, "") && !button.isEmpty()) {
+                        _letterBuf = button.getText().toString();
+                        button.setText(" ");
+                    } else if (!Objects.equals(_letterBuf, "") && button.isEmpty()) {
+                        button.setText(_letterBuf);
+                        _letterBuf = "";
+                    }
                 }
             });
-
         }
     }
 
@@ -63,7 +71,7 @@ public class GameActivity extends AppCompatActivity {
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         for (int i = 0; i < POOL_SIZE; ++i) {
-            MyCustomedButton bt = new MyCustomedButton(this);
+            MyButtton bt = new MyButtton(this);
             bt.setId(++dopID);
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(150, 150);
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -117,8 +125,9 @@ public class GameActivity extends AppCompatActivity {
                     params.addRule(RelativeLayout.BELOW, masOfIDs[i - 1][j]);
                     params.addRule(RelativeLayout.ALIGN_LEFT);
 
-                    MyCustomedButton bt = new MyCustomedButton(this);
+                    MyButtton bt = new MyButtton(this);
                     bt.setText(" ");
+                    bt.setOnPool(true);
 
                     bt.setId(curID++);
                     masOfIDs[i][j] = bt.getId();
@@ -126,8 +135,9 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j != 0) {
-                    MyCustomedButton bt = new MyCustomedButton(this);
+                    MyButtton bt = new MyButtton(this);
                     bt.setText(" ");
+                    bt.setOnPool(true);
 
                     bt.setId(curID++);
                     masOfIDs[i][j] = bt.getId();
@@ -137,8 +147,9 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i != 0 && j == 0) {
-                    MyCustomedButton bt = new MyCustomedButton(this);
+                    MyButtton bt = new MyButtton(this);
                     bt.setText(" ");
+                    bt.setOnPool(true);
 
                     bt.setId(curID++);
                     masOfIDs[i][j] = bt.getId();
@@ -148,10 +159,11 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j == 0) {
-//exception
-                    MyCustomedButton bt = ((MyCustomedButton)findViewById(curID++));
+
+                    MyButtton bt = ((MyButtton) findViewById(curID++));
                     params.addRule(RelativeLayout.ALIGN_PARENT_START);
                     bt.setLayoutParams(params);
+                    bt.setOnPool(true);
                 }
             }
         }
