@@ -73,7 +73,8 @@ public class GameActivity extends AppCompatActivity {
                     x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
                     if (x.isEmpty()) {
                         ++curRow;
-                        continue;
+                        //not nessesary
+                        //continue;
                     } else {
                         rowStarts = curRow;
                         break;
@@ -122,7 +123,8 @@ public class GameActivity extends AppCompatActivity {
                     x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
                     if (x.isEmpty()) {
                         ++curColumn;
-                        continue;
+                        //not nessesary
+                        //continue;
                     } else {
                         columnStarts = curColumn;
                         break;
