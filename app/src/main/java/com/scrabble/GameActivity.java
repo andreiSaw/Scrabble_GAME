@@ -1,11 +1,13 @@
 package com.scrabble;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Pair;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -14,13 +16,16 @@ import java.util.Objects;
 import java.util.Vector;
 
 public class GameActivity extends AppCompatActivity {
-
+    Button sbmButton;
     int[] bottomLineIDs = new int[7];
     Trie trie;
     Dictionary dic = new Dictionary();
     int[][] masOfIDs = new int[7][7];
     int dopID;
     String _letterBuf = "";
+    Vector<Pair<String, Double>> vectorOfHeuristic;
+    TextView tv;
+    Double score = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,11 +37,13 @@ public class GameActivity extends AppCompatActivity {
         dic.loadDic(this.getResources().openRawResource(R.raw.words));
         loadBottomLine();
         loadSubmitButton();
+        loadHeuristic();
         game();
 
     }
 
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
+
         @Override
         public void onClick(View v) {
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
@@ -61,7 +68,6 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
 
-            //curRow = 0;
 //look over each column
             // downward
             for (int i : cols) {
@@ -73,7 +79,6 @@ public class GameActivity extends AppCompatActivity {
                     x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
                     if (x.isEmpty()) {
                         ++curRow;
-                        //not nessesary
                         //continue;
                     } else {
                         rowStarts = curRow;
@@ -94,25 +99,29 @@ public class GameActivity extends AppCompatActivity {
                 //checking
                 if (word.length() > 2) {
                     List myList = trie.getWords(word);
-                    if (myList.isEmpty()) {
-                        word = "";
-                        myButttons.removeAllElements();
-                    } else {
-                        for (MyButtton y : myButttons) {
-                            y.setLocked(true);
-                        }
-                        word = "";
-                        myButttons.removeAllElements();
-                    }
-                } else {
-                    word = "";
-                    myButttons.removeAllElements();
-                }
 
+                    if (!myList.isEmpty()) {
+                        if (myList.contains(word)) {
+                            for (MyButtton y : myButttons) {
+                                y.setLocked(true);
+                            }
+                            //set button style to green color
+                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                            //delete word from dic
+                            dic.removeWord(word);
+                        }
+                    } else {
+                        sbmButton.setBackgroundResource(R.drawable.button_danger_selector);
+                    }
+                    //ask new word from trie to bottom (rack)
+                    fillBottomLine();
+                }
+                word = "";
+                myButttons.removeAllElements();
             }
 //look over each row
             //rightward
-            // curColumn = 0;
+
             for (int i : rows) {
                 curRow = i;
                 curColumn = 0;
@@ -147,41 +156,92 @@ public class GameActivity extends AppCompatActivity {
                 //checking
                 if (word.length() > 2) {
                     List myList = trie.getWords(word);
-                    //delete word from trie
-                    if (myList.isEmpty()) {
-                        word = "";
-                        myButttons.removeAllElements();
-                    } else {
-                        for (MyButtton y : myButttons) {
-                            y.setLocked(true);
+
+                    if (!myList.isEmpty()) {
+                        if (myList.contains(word)) {
+                            for (MyButtton y : myButttons) {
+                                y.setLocked(true);
+
+                            }
+                            updateScore(word);
+                            //set button style to green color
+                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                            //delete word from dic
+                            dic.removeWord(word);
                         }
-                        word = "";
-                        myButttons.removeAllElements();
+                        //ask new word from trie to bottom (rack)
+                        fillBottomLine();
+                    } else {
+                        sbmButton.setBackgroundResource(R.drawable.button_danger_selector);
                     }
-                } else {
-                    word = "";
-                    myButttons.removeAllElements();
                 }
+                word = "";
+                myButttons.removeAllElements();
+
+
             }
-        //ask new word from trie to bottom (rack)
         }
     };
 
     private void loadSubmitButton() {
-        Button btn = new Button(this);
-        btn.setText("S U B M I T");
-        btn.setBackgroundResource(R.drawable.button_success_selector);
+        sbmButton = new Button(this);
+        sbmButton.setText("S U B M I T");
+        // btn.setBackgroundResource(R.drawable.button_success_selector);
+        sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
         params.addRule(RelativeLayout.ABOVE, bottomLineIDs[POOL_SIZE / 2]);
-        btn.setLayoutParams(params);
-        relativeLayout.addView(btn);
+        sbmButton.setLayoutParams(params);
+        sbmButton.setId(++dopID);
+        relativeLayout.addView(sbmButton);
         //checking
-        btn.setOnClickListener(submitButtonListener);
+        sbmButton.setOnClickListener(submitButtonListener);
+    }
+
+    private void updateScore(String word) {
+        String w = "";
+        while (word.length() > 0) {
+            w += word.charAt(0);
+            int x = word.charAt(0) - 'a';
+            score += vectorOfHeuristic.get(x).second;
+            word = word.substring(1);
+            w = "";
+        }
+        Double s=score*100;
+        tv.setText(String.valueOf(s.intValue()));
 
     }
 
+    private boolean loadHeuristic() {
+        vectorOfHeuristic = new Vector<>();
+        DataInputStream dataInputStream;
+        String text;
+        String letter;
+        Double m;
+        try {
+            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.heuristic));
+            while (dataInputStream.available() > 0) {
+                text = (dataInputStream.readLine());
+                letter = text.substring(0, 1);
+                text = text.substring(3);
+                m = Double.parseDouble(text);
+                vectorOfHeuristic.add(new Pair<String, Double>(letter, m));
+            }
+            dataInputStream.close();
+        } catch (IOException ex) {
+            System.out.println("File Not found");
+            return false;
+        }
+        tv = new TextView(this);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_LEFT);
+        params.addRule(RelativeLayout.ABOVE, sbmButton.getId());
+        tv.setLayoutParams(params);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
+        relativeLayout.addView(tv);
+        return true;
+    }
 
     private void game() {
         //
@@ -242,6 +302,16 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
+    private void fillBottomLine() {
+        String word = dic.getRequiredSize(7);
+
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            String string = "" + word.charAt(i);
+            MyButtton btn = (MyButtton) findViewById(bottomLineIDs[i]);
+            btn.setText(string);
+        }
+    }
+
     private final int POOL_SIZE = 7;
 
     private boolean loadVocab() {
@@ -249,7 +319,7 @@ public class GameActivity extends AppCompatActivity {
         trie = new Trie();
         String text;
         try {
-            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words7));
+            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words));
             while (dataInputStream.available() > 0) {
                 text = dataInputStream.readLine();
                 trie.addWord(text);
@@ -281,7 +351,6 @@ public class GameActivity extends AppCompatActivity {
                     MyButtton bt = new MyButtton(this);
                     bt.setText(" ");
                     bt.setOnPool(true);
-
                     bt.setId(curID++);
                     masOfIDs[i][j] = bt.getId();
 

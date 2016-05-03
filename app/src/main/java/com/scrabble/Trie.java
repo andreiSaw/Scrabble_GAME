@@ -22,6 +22,11 @@ public class Trie {
         root.addWord(word.toLowerCase());
     }
 
+    /*public void removeWord(String word)
+    {
+        root.removeWord(word);
+    }
+*/
     /**
      * Get the words in the Trie with the given
      * prefix
