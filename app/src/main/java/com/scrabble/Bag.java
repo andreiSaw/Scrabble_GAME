@@ -35,8 +35,9 @@ public class Bag {
                     "WW" +
                     "X" +
                     "YY" +
-                    "Z" +
-                    "??";
+                    "Z";
+                    //+
+                    //"??";
 
     public Bag() {
         list = new ArrayList<>();

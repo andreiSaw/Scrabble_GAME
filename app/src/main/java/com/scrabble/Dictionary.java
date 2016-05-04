@@ -21,7 +21,7 @@ public class Dictionary {
         while (length > 0) {
             int c = rnd.nextInt(length);
             messed += source.charAt(c);
-            source = source.substring(0, c) + source.substring(c+1);
+            source = source.substring(0, c) + source.substring(c + 1);
             --length;
         }
         return messed;
@@ -36,7 +36,7 @@ public class Dictionary {
 
         if (scanner != null) {
             while (scanner.hasNext()) {
-                dic.add(scanner.next());
+                dic.add(scanner.next().toLowerCase());
             }
         }
         if (scanner != null) {
@@ -82,7 +82,7 @@ public class Dictionary {
         int count = myList.size();
         Random rnd = new Random();
         int index = rnd.nextInt(count);
-        String indexed=(String) myList.get(index);
+        String indexed = (String) myList.get(index);
         return indexed;
         //return rearrangeWord(indexed);
     }

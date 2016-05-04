@@ -1,11 +1,17 @@
 package com.scrabble;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,19 +22,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 
+import gaddag_data.GADDAG;
+
 public class GameActivity extends AppCompatActivity {
     Button sbmButton;
     int[] bottomLineIDs = new int[7];
     Trie trie;
     Dictionary dic = new Dictionary();
-    int[][] masOfIDs = new int[7][7];
+    Board pool;
     int dopID;
     String _letterBuf = "";
     Vector<Pair<String, Double>> vectorOfHeuristic;
     TextView tv;
     Double score = 0.0;
     List<String> playedWords = new ArrayList<>();
-    String[][] board;
     private Bag bag;
 
     /*
@@ -36,14 +43,14 @@ public class GameActivity extends AppCompatActivity {
         private static final Color DW_COLOR = new Color(255, 150, 150);
         private static final Color TL_COLOR = new Color(176, 229, 124);
     */
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-
         loadVocab();
+        loadPool();
         loadTable();
-        board = new String[POOL_SIZE][POOL_SIZE];
         dic.loadDic(this.getResources().openRawResource(R.raw.words));
         loadBottomLine();
         loadBag();
@@ -53,6 +60,11 @@ public class GameActivity extends AppCompatActivity {
         game();
 
     }
+
+    private void loadPool() {
+        pool = new Board(POOL_SIZE);
+    }
+
 
     private void loadBag() {
         bag = new Bag();
@@ -65,7 +77,6 @@ public class GameActivity extends AppCompatActivity {
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             MyButtton x;
             String y;
-            //Vector<MyButtton> myButttons = new Vector<>();
             String word = "";
             int curColumn, curRow;
             int columnStarts = 0, columnEnds = 0, rowStarts = 0, rowEnds = 0;
@@ -74,8 +85,8 @@ public class GameActivity extends AppCompatActivity {
 
             for (int i = 0; i < POOL_SIZE; ++i) {
                 for (int j = 0; j < POOL_SIZE; ++j) {
-                    x = (MyButtton) findViewById(masOfIDs[i][j]);
-                    board[i][j] = x.getText().toString();
+                    x = (MyButtton) findViewById(pool.getButtonID(i, j));
+                    pool.setButtonValue(i, j, x.getText().toString());
                     if (!x.isEmpty() && !x.isLocked()) {
                         if (!cols.contains(j)) {
                             cols.add(j);
@@ -92,10 +103,10 @@ public class GameActivity extends AppCompatActivity {
             for (int i : cols) {
                 curColumn = i;
                 curRow = 0;
-                y = board[curRow][curColumn];
+                y = pool.getButtonValue(curRow, curColumn);
                 //find where word starts
                 while (curRow != POOL_SIZE) {
-                    y = board[curRow][curColumn];
+                    y = pool.getButtonValue(curRow, curColumn);
                     if (Objects.equals(y, " ")) {
                         ++curRow;
                         //continue;
@@ -111,7 +122,7 @@ public class GameActivity extends AppCompatActivity {
                     if (curRow == POOL_SIZE) {
                         break;
                     }
-                    y = board[curRow][curColumn];
+                    y = pool.getButtonValue(curRow, curColumn);
                 }
                 rowEnds = curRow - 1;
 
@@ -123,7 +134,7 @@ public class GameActivity extends AppCompatActivity {
                             ++jj;
                             do {
                                 ++ii;
-                                x = (MyButtton) findViewById(masOfIDs[ii][jj]);
+                                x = (MyButtton) findViewById(pool.getButtonID(ii, jj));
                                 x.setLocked(true);
                             }
                             while (ii != rowEnds);
@@ -138,7 +149,6 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }
                 word = "";
-                //myButttons.removeAllElements();
             }
 
             //look over each row
@@ -147,10 +157,10 @@ public class GameActivity extends AppCompatActivity {
             for (int i : rows) {
                 curRow = i;
                 curColumn = 0;
-                y = board[curRow][curColumn];
+                y = pool.getButtonValue(curRow, curColumn);
                 //find where word starts
                 while (curColumn != POOL_SIZE) {
-                    y = board[curRow][curColumn];
+                    y = pool.getButtonValue(curRow, curColumn);
                     if (Objects.equals(y, " ")) {
                         ++curColumn;
                         //continue;
@@ -167,7 +177,7 @@ public class GameActivity extends AppCompatActivity {
                     if (curColumn == POOL_SIZE) {
                         break;
                     }
-                    y = board[curRow][curColumn];
+                    y = pool.getButtonValue(curRow, curColumn);
                 }
                 columnEnds = curColumn - 1;
 
@@ -179,7 +189,7 @@ public class GameActivity extends AppCompatActivity {
                             ++ii;
                             do {
                                 ++jj;
-                                x = (MyButtton) findViewById(masOfIDs[ii][jj]);
+                                x = (MyButtton) findViewById(pool.getButtonID(ii, jj));
                                 x.setLocked(true);
                             }
                             while (jj != columnEnds);
@@ -194,7 +204,6 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }
                 word = "";
-                // myButttons.removeAllElements();
             }
             //ask new word from trie to bottom (rack)
             fillBottomLine();
@@ -204,7 +213,6 @@ public class GameActivity extends AppCompatActivity {
     private void loadSubmitButton() {
         sbmButton = new Button(this);
         sbmButton.setText("S U B M I T");
-        // btn.setBackgroundResource(R.drawable.button_success_selector);
         sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -245,7 +253,7 @@ public class GameActivity extends AppCompatActivity {
                 letter = text.substring(0, 1);
                 text = text.substring(3);
                 m = Double.parseDouble(text);
-                vectorOfHeuristic.add(new Pair<String, Double>(letter, m));
+                vectorOfHeuristic.add(new Pair<>(letter, m));
             }
             dataInputStream.close();
         } catch (IOException ex) {
@@ -266,11 +274,10 @@ public class GameActivity extends AppCompatActivity {
         //
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
-                final MyButtton button = (MyButtton) findViewById(masOfIDs[i][j]);
+                final MyButtton button = (MyButtton) findViewById(pool.getButtonID(i, j));
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         if (!Objects.equals(_letterBuf, "") && button.isEmpty()) {
-                            //if (_letterBuf != "" && button.getText() == " ") {
                             button.setText(_letterBuf);
                             _letterBuf = "";
                         } else if (!button.isEmpty() && !button.isLocked() && Objects.equals(_letterBuf, "")) {
@@ -299,8 +306,6 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void loadBottomLine() {
-        // String str = dic.getRequiredSize(7);
-
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         for (int i = 0; i < POOL_SIZE; ++i) {
             MyButtton bt = new MyButtton(this);
@@ -334,23 +339,21 @@ public class GameActivity extends AppCompatActivity {
         List letters = bag.getLetters(countBottomLine());
         int count = letters.size();
         for (int i = 0; i < count; ++i) {
-            String string = "" + letters.get(i);
+            String string = "" + letters.get(0);
             MyButtton btn = (MyButtton) findViewById(bottomLineIDs[i]);
             if (btn.isEmpty()) {
-                if (!Objects.equals(string, "?")) {
-                    btn.setText(string);
-                }
-                else {
-                    btn.setText("");
-                }
+                btn.setText(string);
+                letters.remove(0);
             }
+
+
         }
     }
 
     private final int POOL_SIZE = 7;
 
     private boolean loadVocab() {
-        // GADDAG gaddag = new GADDAG();
+        GADDAG gaddag = new GADDAG();
         DataInputStream dataInputStream;
         trie = new Trie();
         String text;
@@ -358,7 +361,7 @@ public class GameActivity extends AppCompatActivity {
             dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words));
             while (dataInputStream.available() > 0) {
                 text = dataInputStream.readLine();
-                //gaddag.add(text);
+                gaddag.add(text);
                 trie.addWord(text);
             }
             dataInputStream.close();
@@ -374,22 +377,23 @@ public class GameActivity extends AppCompatActivity {
         int curID = R.id.button00;
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
 
-        masOfIDs[0][0] = curID;
+        pool.setButtonID(0, 0, curID);
+
 
 //razmetka stranicy
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(150, 150);
                 if (i != 0 && j != 0) {
-                    params.addRule(RelativeLayout.RIGHT_OF, masOfIDs[i][j - 1]);
-                    params.addRule(RelativeLayout.BELOW, masOfIDs[i - 1][j]);
+                    params.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
+                    params.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     params.addRule(RelativeLayout.ALIGN_LEFT);
 
                     MyButtton bt = new MyButtton(this);
                     bt.setText(" ");
                     bt.setOnPool(true);
                     bt.setId(curID++);
-                    masOfIDs[i][j] = bt.getId();
+                    pool.setButtonID(i, j, bt.getId());
 
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
@@ -399,27 +403,31 @@ public class GameActivity extends AppCompatActivity {
                     bt.setOnPool(true);
 
                     bt.setId(curID++);
-                    masOfIDs[i][j] = bt.getId();
+
+                    pool.setButtonID(i, j, bt.getId());
 
                     params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                    params.addRule(RelativeLayout.RIGHT_OF, masOfIDs[i][j - 1]);
+                    params.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
-                } else if (i != 0 && j == 0) {
+                } else if (i != 0) {
+                    //} else if (i != 0 && j == 0) {
                     MyButtton bt = new MyButtton(this);
                     bt.setText(" ");
                     bt.setOnPool(true);
 
                     bt.setId(curID++);
-                    masOfIDs[i][j] = bt.getId();
+
+                    pool.setButtonID(i, j, bt.getId());
 
                     params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-                    params.addRule(RelativeLayout.BELOW, masOfIDs[i - 1][j]);
+                    params.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
-                } else if (i == 0 && j == 0) {
-
+                } else {
+                    //} else if (i == 0 && j == 0) {
                     MyButtton bt = ((MyButtton) findViewById(curID++));
+                    pool.setButtonID(0,0,bt.getId());
                     params.addRule(RelativeLayout.ALIGN_PARENT_START);
                     bt.setLayoutParams(params);
                     bt.setOnPool(true);
