@@ -75,6 +75,7 @@ public class MyButtton extends Button
     }
 
     public boolean isEmpty() {
+        checkEmptiness();
         return isEmpty;
     }
 
@@ -87,4 +88,11 @@ public class MyButtton extends Button
         super.addTextChangedListener(watcher);
     }
 
+    private void checkEmptiness() {
+        if (Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ")) {
+            isEmpty = true;
+        } else {
+            isEmpty = false;
+        }
+    }
 }

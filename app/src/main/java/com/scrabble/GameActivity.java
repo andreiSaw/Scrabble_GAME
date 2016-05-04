@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
@@ -26,11 +27,15 @@ public class GameActivity extends AppCompatActivity {
     Vector<Pair<String, Double>> vectorOfHeuristic;
     TextView tv;
     Double score = 0.0;
-/*
-    private static final Color DL_COLOR = new Color(140, 230, 250);
-    private static final Color DW_COLOR = new Color(255, 150, 150);
-    private static final Color TL_COLOR = new Color(176, 229, 124);
-*/
+    List<String> playedWords = new ArrayList<>();
+    String[][] board;
+    private Bag bag;
+
+    /*
+        private static final Color DL_COLOR = new Color(140, 230, 250);
+        private static final Color DW_COLOR = new Color(255, 150, 150);
+        private static final Color TL_COLOR = new Color(176, 229, 124);
+    */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,12 +43,19 @@ public class GameActivity extends AppCompatActivity {
 
         loadVocab();
         loadTable();
+        board = new String[POOL_SIZE][POOL_SIZE];
         dic.loadDic(this.getResources().openRawResource(R.raw.words));
         loadBottomLine();
+        loadBag();
+        fillBottomLine();
         loadSubmitButton();
         loadHeuristic();
         game();
 
+    }
+
+    private void loadBag() {
+        bag = new Bag();
     }
 
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
@@ -52,15 +64,18 @@ public class GameActivity extends AppCompatActivity {
         public void onClick(View v) {
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             MyButtton x;
-            Vector<MyButtton> myButttons = new Vector<>();
+            String y;
+            //Vector<MyButtton> myButttons = new Vector<>();
             String word = "";
             int curColumn, curRow;
             int columnStarts = 0, columnEnds = 0, rowStarts = 0, rowEnds = 0;
             //i - is row
             //j - is column
+
             for (int i = 0; i < POOL_SIZE; ++i) {
                 for (int j = 0; j < POOL_SIZE; ++j) {
                     x = (MyButtton) findViewById(masOfIDs[i][j]);
+                    board[i][j] = x.getText().toString();
                     if (!x.isEmpty() && !x.isLocked()) {
                         if (!cols.contains(j)) {
                             cols.add(j);
@@ -72,16 +87,16 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
 
-//look over each column
+            //look over each column
             // downward
             for (int i : cols) {
                 curColumn = i;
                 curRow = 0;
-                x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
+                y = board[curRow][curColumn];
                 //find where word starts
                 while (curRow != POOL_SIZE) {
-                    x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
-                    if (x.isEmpty()) {
+                    y = board[curRow][curColumn];
+                    if (Objects.equals(y, " ")) {
                         ++curRow;
                         //continue;
                     } else {
@@ -90,53 +105,54 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }
                 //find where word ends
-                while (!x.isEmpty() && curRow != POOL_SIZE) {
-                    myButttons.add(x);
-                    word += x.getText();
+                while (!Objects.equals(y, " ") && curRow != POOL_SIZE) {
+                    word += y;
                     ++curRow;
                     if (curRow == POOL_SIZE) {
                         break;
                     }
-                    x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
+                    y = board[curRow][curColumn];
                 }
                 rowEnds = curRow - 1;
-                //checking
-                if (word.length() > 2) {
-                    List myList = trie.getWords(word);
 
-                    if (!myList.isEmpty()) {
-                        if (myList.contains(word)) {
-                            for (MyButtton y : myButttons) {
-                                y.setLocked(true);
+                //checking
+                if (word.length() > 1) {
+                    if (dic.isValidWord(word)) {
+                        int ii = rowStarts - 1, jj = columnStarts - 1;
+                        do {
+                            ++jj;
+                            do {
+                                ++ii;
+                                x = (MyButtton) findViewById(masOfIDs[ii][jj]);
+                                x.setLocked(true);
                             }
-                            //set button style to green color
-                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
-                            //delete word from dic
-                            dic.removeWord(word);
+                            while (ii != rowEnds);
                         }
-                    } else {
-                        sbmButton.setBackgroundResource(R.drawable.button_danger_selector);
+                        while (jj != columnEnds);
+
+                        updateScore(word);
+                        //set button style to green color
+                        sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                        //delete word from dic
+                        dic.removeWord(word);
                     }
-                    //ask new word from trie to bottom (rack)
-                    fillBottomLine();
                 }
                 word = "";
-                myButttons.removeAllElements();
+                //myButttons.removeAllElements();
             }
-//look over each row
+
+            //look over each row
             //rightward
 
             for (int i : rows) {
                 curRow = i;
                 curColumn = 0;
-                x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
-
+                y = board[curRow][curColumn];
                 //find where word starts
                 while (curColumn != POOL_SIZE) {
-                    x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
-                    if (x.isEmpty()) {
+                    y = board[curRow][curColumn];
+                    if (Objects.equals(y, " ")) {
                         ++curColumn;
-                        //not nessesary
                         //continue;
                     } else {
                         columnStarts = curColumn;
@@ -144,46 +160,44 @@ public class GameActivity extends AppCompatActivity {
                     }
                 }
                 //find where word ends
-                while (!x.isEmpty() && curColumn != POOL_SIZE) {
-                    myButttons.add(x);
-                    word += x.getText();
+                while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
+                    word += y;
                     ++curColumn;
 
                     if (curColumn == POOL_SIZE) {
                         break;
                     }
-
-                    x = (MyButtton) findViewById(masOfIDs[curRow][curColumn]);
+                    y = board[curRow][curColumn];
                 }
                 columnEnds = curColumn - 1;
 
                 //checking
-                if (word.length() > 2) {
-                    List myList = trie.getWords(word);
-
-                    if (!myList.isEmpty()) {
-                        if (myList.contains(word)) {
-                            for (MyButtton y : myButttons) {
-                                y.setLocked(true);
-
+                if (word.length() > 1) {
+                    if (dic.isValidWord(word)) {
+                        int ii = rowStarts - 1, jj = columnStarts - 1;
+                        do {
+                            ++ii;
+                            do {
+                                ++jj;
+                                x = (MyButtton) findViewById(masOfIDs[ii][jj]);
+                                x.setLocked(true);
                             }
-                            updateScore(word);
-                            //set button style to green color
-                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
-                            //delete word from dic
-                            dic.removeWord(word);
+                            while (jj != columnEnds);
                         }
-                        //ask new word from trie to bottom (rack)
-                        fillBottomLine();
-                    } else {
-                        sbmButton.setBackgroundResource(R.drawable.button_danger_selector);
+                        while (ii != rowEnds);
+
+                        updateScore(word);
+                        //set button style to green color
+                        sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                        //delete word from dic
+                        dic.removeWord(word);
                     }
                 }
                 word = "";
-                myButttons.removeAllElements();
-
-
+                // myButttons.removeAllElements();
             }
+            //ask new word from trie to bottom (rack)
+            fillBottomLine();
         }
     };
 
@@ -204,6 +218,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void updateScore(String word) {
+        addWordToStore(word);
         String w = "";
         while (word.length() > 0) {
             w += word.charAt(0);
@@ -284,7 +299,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void loadBottomLine() {
-        String str = dic.getRequiredSize(7);
+        // String str = dic.getRequiredSize(7);
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         for (int i = 0; i < POOL_SIZE; ++i) {
@@ -296,9 +311,6 @@ public class GameActivity extends AppCompatActivity {
                 params.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 params.addRule(RelativeLayout.RIGHT_OF, bottomLineIDs[i - 1]);
             }
-
-            String dopStr = "" + str.charAt(i);
-            bt.setText(dopStr);
             bt.setLayoutParams(params);
             relativeLayout.addView(bt);
             bottomLineIDs[i] = bt.getId();
@@ -306,19 +318,39 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    private void fillBottomLine() {
-        String word = dic.getRequiredSize(7);
-
+    private int countBottomLine() {
+        int count = POOL_SIZE;
+        MyButtton x;
         for (int i = 0; i < POOL_SIZE; ++i) {
-            String string = "" + word.charAt(i);
+            x = (MyButtton) findViewById(bottomLineIDs[i]);
+            if (!x.isEmpty()) {
+                --count;
+            }
+        }
+        return count;
+    }
+
+    private void fillBottomLine() {
+        List letters = bag.getLetters(countBottomLine());
+        int count = letters.size();
+        for (int i = 0; i < count; ++i) {
+            String string = "" + letters.get(i);
             MyButtton btn = (MyButtton) findViewById(bottomLineIDs[i]);
-            btn.setText(string);
+            if (btn.isEmpty()) {
+                if (!Objects.equals(string, "?")) {
+                    btn.setText(string);
+                }
+                else {
+                    btn.setText("");
+                }
+            }
         }
     }
 
     private final int POOL_SIZE = 7;
 
     private boolean loadVocab() {
+        // GADDAG gaddag = new GADDAG();
         DataInputStream dataInputStream;
         trie = new Trie();
         String text;
@@ -326,6 +358,7 @@ public class GameActivity extends AppCompatActivity {
             dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words));
             while (dataInputStream.available() > 0) {
                 text = dataInputStream.readLine();
+                //gaddag.add(text);
                 trie.addWord(text);
             }
             dataInputStream.close();
@@ -395,6 +428,11 @@ public class GameActivity extends AppCompatActivity {
                 }
             }
         }
+        dopID = curID;
+    }
+
+    private void addWordToStore(String word) {
+        playedWords.add(word);
     }
 }
 
