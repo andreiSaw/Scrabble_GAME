@@ -26,7 +26,11 @@ public class GameActivity extends AppCompatActivity {
     Vector<Pair<String, Double>> vectorOfHeuristic;
     TextView tv;
     Double score = 0.0;
-
+/*
+    private static final Color DL_COLOR = new Color(140, 230, 250);
+    private static final Color DW_COLOR = new Color(255, 150, 150);
+    private static final Color TL_COLOR = new Color(176, 229, 124);
+*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -208,7 +212,7 @@ public class GameActivity extends AppCompatActivity {
             word = word.substring(1);
             w = "";
         }
-        Double s=score*100;
+        Double s = score * 100;
         tv.setText(String.valueOf(s.intValue()));
 
     }
