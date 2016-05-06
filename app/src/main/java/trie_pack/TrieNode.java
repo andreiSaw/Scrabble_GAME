@@ -1,4 +1,4 @@
-package com.scrabble;
+package trie_pack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class TrieNode {
      */
     protected List getWords() {
         //Create a list to return
-        List list = new ArrayList();
+        List<String> list = new ArrayList<>();
 
         //If this node represents a word, add it
         if (isWord) {
@@ -79,9 +79,9 @@ public class TrieNode {
         //If any children
         if (!isLeaf) {
             //Add any words belonging to any children
-            for (int i = 0; i < children.length; i++) {
-                if (children[i] != null) {
-                    list.addAll(children[i].getWords());
+            for (TrieNode aChildren : children) {
+                if (aChildren != null) {
+                    list.addAll(aChildren.getWords());
                 }
             }
         }
@@ -92,11 +92,11 @@ public class TrieNode {
 
     /**
      * Gets the String that this node represents.
-     * <p>
+     * <p/>
      * For example, if this node represents the character t, whose parent
-     * <p>
+     * <p/>
      * represents the charater a, whose parent represents the character
-     * <p>
+     * <p/>
      * c, then the String would be "cat".
      *
      * @return

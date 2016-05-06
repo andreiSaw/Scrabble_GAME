@@ -1,4 +1,4 @@
-package com.scrabble;
+package trie_pack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,11 +22,6 @@ public class Trie {
         root.addWord(word.toLowerCase());
     }
 
-    /*public void removeWord(String word)
-    {
-        root.removeWord(word);
-    }
-*/
     /**
      * Get the words in the Trie with the given
      * prefix
@@ -42,7 +37,9 @@ public class Trie {
             lastNode = lastNode.getNode(prefix.charAt(i));
 
             //If no node matches, then no words exist, return empty list
-            if (lastNode == null) return new ArrayList();
+            if (lastNode == null) {
+                return new ArrayList();
+            }
         }
 
         //Return the words which eminate from the last node

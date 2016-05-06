@@ -1,17 +1,11 @@
 package com.scrabble;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -22,7 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 
-import gaddag_data.GADDAG;
+import trie_pack.Gaddag;
+import trie_pack.Trie;
 
 public class GameActivity extends AppCompatActivity {
     Button sbmButton;
@@ -353,7 +348,8 @@ public class GameActivity extends AppCompatActivity {
     private final int POOL_SIZE = 7;
 
     private boolean loadVocab() {
-        GADDAG gaddag = new GADDAG();
+        //GADDAG gaddag = new GADDAG();
+        Gaddag gaddag=new Gaddag();
         DataInputStream dataInputStream;
         trie = new Trie();
         String text;
@@ -361,8 +357,10 @@ public class GameActivity extends AppCompatActivity {
             dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words));
             while (dataInputStream.available() > 0) {
                 text = dataInputStream.readLine();
-                gaddag.add(text);
-                trie.addWord(text);
+
+                gaddag.addWord(text);
+
+                //trie.addWord(text);
             }
             dataInputStream.close();
         } catch (IOException ex) {
