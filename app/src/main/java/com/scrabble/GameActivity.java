@@ -1,5 +1,6 @@
 package com.scrabble;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
@@ -20,6 +21,7 @@ import trie_pack.Gaddag;
 import trie_pack.Trie;
 
 public class GameActivity extends AppCompatActivity {
+    Player p1, p2;
     Button sbmButton;
     int[] bottomLineIDs = new int[7];
     Trie trie;
@@ -27,7 +29,7 @@ public class GameActivity extends AppCompatActivity {
     Board pool;
     int dopID;
     String _letterBuf = "";
-    Vector<Pair<String, Double>> vectorOfHeuristic;
+    Vector<Pair<String, Double>> vectorOfLettersWorth;
     TextView tv;
     Double score = 0.0;
     List<String> playedWords = new ArrayList<>();
@@ -44,6 +46,7 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         loadVocab();
+        loadPlayers();
         loadPool();
         loadTable();
         dic.loadDic(this.getResources().openRawResource(R.raw.words));
@@ -51,9 +54,31 @@ public class GameActivity extends AppCompatActivity {
         loadBag();
         fillBottomLine();
         loadSubmitButton();
-        loadHeuristic();
-        game();
+        loadScoreButton();
+        loadDistribution();
+        loadListeners();
 
+    }
+
+    private void loadScoreButton() {
+        Button scrButton = new Button(this);
+        scrButton.setText("S C O R E");
+        scrButton.setBackgroundResource(R.drawable.button_info_selector);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        params.addRule(RelativeLayout.ABOVE, sbmButton.getId());
+        scrButton.setLayoutParams(params);
+        scrButton.setId(++dopID);
+        relativeLayout.addView(scrButton);
+        //checking
+
+        scrButton.setOnClickListener(scrButtonListener);
+    }
+
+    private void loadPlayers() {
+        p1 = new Player("Player1");
+        p2 = new Player("Player2");
     }
 
     private void loadPool() {
@@ -65,12 +90,23 @@ public class GameActivity extends AppCompatActivity {
         bag = new Bag();
     }
 
+    private Button.OnClickListener scrButtonListener = new Button.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(GameActivity.this, ScoreTable.class);
+            intent.putExtra("player1",p1);
+            intent.putExtra("player2",p1);
+
+            GameActivity.this.startActivity(intent);
+        }
+    };
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
         @Override
         public void onClick(View v) {
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
-            MyButtton x;
+            ScrabbleTile x;
             String y;
             String word = "";
             int curColumn, curRow;
@@ -80,7 +116,7 @@ public class GameActivity extends AppCompatActivity {
 
             for (int i = 0; i < POOL_SIZE; ++i) {
                 for (int j = 0; j < POOL_SIZE; ++j) {
-                    x = (MyButtton) findViewById(pool.getButtonID(i, j));
+                    x = (ScrabbleTile) findViewById(pool.getButtonID(i, j));
                     pool.setButtonValue(i, j, x.getText().toString());
                     if (!x.isEmpty() && !x.isLocked()) {
                         if (!cols.contains(j)) {
@@ -129,7 +165,7 @@ public class GameActivity extends AppCompatActivity {
                             ++jj;
                             do {
                                 ++ii;
-                                x = (MyButtton) findViewById(pool.getButtonID(ii, jj));
+                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, jj));
                                 x.setLocked(true);
                             }
                             while (ii != rowEnds);
@@ -184,7 +220,7 @@ public class GameActivity extends AppCompatActivity {
                             ++ii;
                             do {
                                 ++jj;
-                                x = (MyButtton) findViewById(pool.getButtonID(ii, jj));
+                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, jj));
                                 x.setLocked(true);
                             }
                             while (jj != columnEnds);
@@ -226,7 +262,7 @@ public class GameActivity extends AppCompatActivity {
         while (word.length() > 0) {
             w += word.charAt(0);
             int x = word.charAt(0) - 'a';
-            score += vectorOfHeuristic.get(x).second;
+            score += vectorOfLettersWorth.get(x).second;
             word = word.substring(1);
             w = "";
         }
@@ -235,20 +271,23 @@ public class GameActivity extends AppCompatActivity {
 
     }
 
-    private boolean loadHeuristic() {
-        vectorOfHeuristic = new Vector<>();
+    private boolean loadDistribution() {
+        //
+        // https://en.wikipedia.org/wiki/Scrabble_letter_distributions
+        //
+        vectorOfLettersWorth = new Vector<>();
         DataInputStream dataInputStream;
         String text;
         String letter;
         Double m;
         try {
-            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.heuristic));
+            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.distribution));
             while (dataInputStream.available() > 0) {
                 text = (dataInputStream.readLine());
                 letter = text.substring(0, 1);
                 text = text.substring(3);
                 m = Double.parseDouble(text);
-                vectorOfHeuristic.add(new Pair<>(letter, m));
+                vectorOfLettersWorth.add(new Pair<>(letter, m));
             }
             dataInputStream.close();
         } catch (IOException ex) {
@@ -265,11 +304,11 @@ public class GameActivity extends AppCompatActivity {
         return true;
     }
 
-    private void game() {
+    private void loadListeners() {
         //
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
-                final MyButtton button = (MyButtton) findViewById(pool.getButtonID(i, j));
+                final ScrabbleTile button = (ScrabbleTile) findViewById(pool.getButtonID(i, j));
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         if (!Objects.equals(_letterBuf, "") && button.isEmpty()) {
@@ -284,7 +323,7 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         for (int i = 0; i < POOL_SIZE; ++i) {
-            final MyButtton button = (MyButtton) findViewById(bottomLineIDs[i]);
+            final ScrabbleTile button = (ScrabbleTile) findViewById(bottomLineIDs[i]);
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -303,7 +342,7 @@ public class GameActivity extends AppCompatActivity {
     private void loadBottomLine() {
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         for (int i = 0; i < POOL_SIZE; ++i) {
-            MyButtton bt = new MyButtton(this);
+            ScrabbleTile bt = new ScrabbleTile(this);
             bt.setId(++dopID);
             RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(150, 150);
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
@@ -320,9 +359,9 @@ public class GameActivity extends AppCompatActivity {
 
     private int countBottomLine() {
         int count = POOL_SIZE;
-        MyButtton x;
+        ScrabbleTile x;
         for (int i = 0; i < POOL_SIZE; ++i) {
-            x = (MyButtton) findViewById(bottomLineIDs[i]);
+            x = (ScrabbleTile) findViewById(bottomLineIDs[i]);
             if (!x.isEmpty()) {
                 --count;
             }
@@ -335,7 +374,7 @@ public class GameActivity extends AppCompatActivity {
         int count = letters.size();
         for (int i = 0; i < count; ++i) {
             String string = "" + letters.get(0);
-            MyButtton btn = (MyButtton) findViewById(bottomLineIDs[i]);
+            ScrabbleTile btn = (ScrabbleTile) findViewById(bottomLineIDs[i]);
             if (btn.isEmpty()) {
                 btn.setText(string);
                 letters.remove(0);
@@ -349,7 +388,7 @@ public class GameActivity extends AppCompatActivity {
 
     private boolean loadVocab() {
         //GADDAG gaddag = new GADDAG();
-        Gaddag gaddag=new Gaddag();
+        // Gaddag gaddag = new Gaddag();
         DataInputStream dataInputStream;
         trie = new Trie();
         String text;
@@ -358,9 +397,8 @@ public class GameActivity extends AppCompatActivity {
             while (dataInputStream.available() > 0) {
                 text = dataInputStream.readLine();
 
-                gaddag.addWord(text);
-
-                //trie.addWord(text);
+                //gaddag.addWord(text);
+                trie.addWord(text);
             }
             dataInputStream.close();
         } catch (IOException ex) {
@@ -387,7 +425,7 @@ public class GameActivity extends AppCompatActivity {
                     params.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     params.addRule(RelativeLayout.ALIGN_LEFT);
 
-                    MyButtton bt = new MyButtton(this);
+                    ScrabbleTile bt = new ScrabbleTile(this);
                     bt.setText(" ");
                     bt.setOnPool(true);
                     bt.setId(curID++);
@@ -396,7 +434,7 @@ public class GameActivity extends AppCompatActivity {
                     bt.setLayoutParams(params);
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j != 0) {
-                    MyButtton bt = new MyButtton(this);
+                    ScrabbleTile bt = new ScrabbleTile(this);
                     bt.setText(" ");
                     bt.setOnPool(true);
 
@@ -410,7 +448,7 @@ public class GameActivity extends AppCompatActivity {
                     relativeLayout.addView(bt);
                 } else if (i != 0) {
                     //} else if (i != 0 && j == 0) {
-                    MyButtton bt = new MyButtton(this);
+                    ScrabbleTile bt = new ScrabbleTile(this);
                     bt.setText(" ");
                     bt.setOnPool(true);
 
@@ -424,8 +462,8 @@ public class GameActivity extends AppCompatActivity {
                     relativeLayout.addView(bt);
                 } else {
                     //} else if (i == 0 && j == 0) {
-                    MyButtton bt = ((MyButtton) findViewById(curID++));
-                    pool.setButtonID(0,0,bt.getId());
+                    ScrabbleTile bt = ((ScrabbleTile) findViewById(curID++));
+                    pool.setButtonID(0, 0, bt.getId());
                     params.addRule(RelativeLayout.ALIGN_PARENT_START);
                     bt.setLayoutParams(params);
                     bt.setOnPool(true);

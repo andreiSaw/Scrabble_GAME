@@ -8,7 +8,7 @@ import android.widget.Button;
 
 import java.util.Objects;
 
-public class MyButtton extends Button
+public class ScrabbleTile extends Button
 
 {
     private boolean lock = false;
@@ -38,22 +38,22 @@ public class MyButtton extends Button
         });
     }
 
-    public MyButtton(Context context) {
+    public ScrabbleTile(Context context) {
         super(context);
         listen();
     }
 
-    public MyButtton(Context context, AttributeSet attrs) {
+    public ScrabbleTile(Context context, AttributeSet attrs) {
         super(context, attrs);
         listen();
     }
 
-    public MyButtton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         listen();
     }
 
-    public MyButtton(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         listen();
     }
@@ -89,10 +89,7 @@ public class MyButtton extends Button
     }
 
     private void checkEmptiness() {
-        if (Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ")) {
-            isEmpty = true;
-        } else {
-            isEmpty = false;
-        }
+        //if (Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ")) {
+        isEmpty = Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ");
     }
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.scrabble.ScoreTable">
+
+    <Button
+        android:id="@+id/buttonForPlayer1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_success_selector"
+        android:text="Player1"/>
+
+    <Button
+        android:id="@+id/buttonForScore1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="33dp"
+        android:background="@drawable/button_success_selector"/>
+
+    <Button
+        android:id="@+id/buttonForPlayer2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonForScore1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="21dp"
+        android:background="@drawable/button_danger_selector"
+        android:text="Player2"/>
+
+    <Button
+        android:id="@+id/buttonForScore2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/buttonForPlayer2"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_danger_selector"/>
+</RelativeLayout>

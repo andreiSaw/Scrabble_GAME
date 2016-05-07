@@ -36,8 +36,6 @@ public class Bag {
                     "X" +
                     "YY" +
                     "Z";
-                    //+
-                    //"??";
 
     public Bag() {
         list = new ArrayList<>();
