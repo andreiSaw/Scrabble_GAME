@@ -8,14 +8,13 @@ public class GaddagNode extends TrieNode {
     private GaddagNode[] children;
     private char character;
     private boolean isEOW;
-    private boolean isLeaf;
+   // private boolean isLeaf;
     private boolean isBreak=false;
-    private final int NUMBERofELEMENTS = 26 + 1;
 
     @Override
     protected void addWord(String word) {
 
-        isLeaf = false;
+      //  isLeaf = false;
         int charPos;
         if (word.charAt(0) == '>') {
             charPos = 26;
@@ -37,8 +36,9 @@ public class GaddagNode extends TrieNode {
     }
 
     public GaddagNode() {
+        int NUMBERofELEMENTS = 26 + 1;
         children = new GaddagNode[NUMBERofELEMENTS];
-        isLeaf = true;
+       // isLeaf = true;
         isEOW = false;
     }
 
@@ -63,7 +63,8 @@ public class GaddagNode extends TrieNode {
         }
 
         //If any children
-        if (!isLeaf) {
+       // if (!isLeaf)
+        {
             //Add any words belonging to any children
             for (GaddagNode aChildren : children) {
                 if (aChildren != null) {
