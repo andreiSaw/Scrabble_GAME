@@ -18,4 +18,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, GameActivity.class);
         MainActivity.this.startActivity(intent);
     }
+
+    public void infoButtonOnClick(View view) {
+        Intent intent = new Intent(MainActivity.this, InfoTab.class);
+        MainActivity.this.startActivity(intent);
+    }
 }

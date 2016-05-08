@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Pair;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -17,21 +15,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 
-import trie_pack.Gaddag;
 import trie_pack.Trie;
 
 public class GameActivity extends AppCompatActivity {
     Player p1, p2;
+    Player curPlayer;
     Button sbmButton;
-    int[] bottomLineIDs = new int[7];
+    Rack rack;
     Trie trie;
     Dictionary dic = new Dictionary();
     Board pool;
     int dopID;
     String _letterBuf = "";
-    Vector<Pair<String, Double>> vectorOfLettersWorth;
-    TextView tv;
-    Double score = 0.0;
+    Vector<Pair<String, Integer>> vectorOfLettersWorth;
     List<String> playedWords = new ArrayList<>();
     private Bag bag;
 
@@ -51,8 +47,7 @@ public class GameActivity extends AppCompatActivity {
         loadTable();
         dic.loadDic(this.getResources().openRawResource(R.raw.words));
         loadBottomLine();
-        loadBag();
-        fillBottomLine();
+        fisrtFillingRack();
         loadSubmitButton();
         loadScoreButton();
         loadDistribution();
@@ -71,22 +66,18 @@ public class GameActivity extends AppCompatActivity {
         scrButton.setLayoutParams(params);
         scrButton.setId(++dopID);
         relativeLayout.addView(scrButton);
-        //checking
-
         scrButton.setOnClickListener(scrButtonListener);
     }
 
     private void loadPlayers() {
         p1 = new Player("Player1");
         p2 = new Player("Player2");
+        curPlayer = p1;
     }
 
     private void loadPool() {
         pool = new Board(POOL_SIZE);
-    }
-
-
-    private void loadBag() {
+        rack = new Rack(POOL_SIZE);
         bag = new Bag();
     }
 
@@ -95,8 +86,8 @@ public class GameActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(GameActivity.this, ScoreTable.class);
-            intent.putExtra("player1",p1);
-            intent.putExtra("player2",p1);
+            intent.putExtra("Player1", p1.toString());
+            intent.putExtra("Player2", p2.toString());
 
             GameActivity.this.startActivity(intent);
         }
@@ -172,7 +163,7 @@ public class GameActivity extends AppCompatActivity {
                         }
                         while (jj != columnEnds);
 
-                        updateScore(word);
+                        curPlayer.updateScore(getWordReward(word));
                         //set button style to green color
                         sbmButton.setBackgroundResource(R.drawable.button_success_selector);
                         //delete word from dic
@@ -226,8 +217,7 @@ public class GameActivity extends AppCompatActivity {
                             while (jj != columnEnds);
                         }
                         while (ii != rowEnds);
-
-                        updateScore(word);
+                        curPlayer.updateScore(getWordReward(word));
                         //set button style to green color
                         sbmButton.setBackgroundResource(R.drawable.button_success_selector);
                         //delete word from dic
@@ -236,10 +226,20 @@ public class GameActivity extends AppCompatActivity {
                 }
                 word = "";
             }
-            //ask new word from trie to bottom (rack)
+            //ask new word from trie to rack
             fillBottomLine();
+            changeCurrentPlayer();
+
         }
     };
+
+    private void changeCurrentPlayer() {
+        if (curPlayer.equals(p1)) {
+            curPlayer = p2;
+            return;
+        }
+        curPlayer = p1;
+    }
 
     private void loadSubmitButton() {
         sbmButton = new Button(this);
@@ -248,27 +248,22 @@ public class GameActivity extends AppCompatActivity {
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        params.addRule(RelativeLayout.ABOVE, bottomLineIDs[POOL_SIZE / 2]);
+        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE / 2));
         sbmButton.setLayoutParams(params);
         sbmButton.setId(++dopID);
         relativeLayout.addView(sbmButton);
-        //checking
         sbmButton.setOnClickListener(submitButtonListener);
     }
 
-    private void updateScore(String word) {
+    private int getWordReward(String word) {
         addWordToStore(word);
-        String w = "";
+        int score = 0;
         while (word.length() > 0) {
-            w += word.charAt(0);
             int x = word.charAt(0) - 'a';
             score += vectorOfLettersWorth.get(x).second;
             word = word.substring(1);
-            w = "";
         }
-        Double s = score * 100;
-        tv.setText(String.valueOf(s.intValue()));
-
+        return score;
     }
 
     private boolean loadDistribution() {
@@ -279,14 +274,14 @@ public class GameActivity extends AppCompatActivity {
         DataInputStream dataInputStream;
         String text;
         String letter;
-        Double m;
+        Integer m;
         try {
             dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.distribution));
             while (dataInputStream.available() > 0) {
                 text = (dataInputStream.readLine());
                 letter = text.substring(0, 1);
-                text = text.substring(3);
-                m = Double.parseDouble(text);
+                text = text.substring(4);
+                m = Integer.parseInt(text);
                 vectorOfLettersWorth.add(new Pair<>(letter, m));
             }
             dataInputStream.close();
@@ -294,6 +289,7 @@ public class GameActivity extends AppCompatActivity {
             System.out.println("File Not found");
             return false;
         }
+        /*
         tv = new TextView(this);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_LEFT);
@@ -301,6 +297,7 @@ public class GameActivity extends AppCompatActivity {
         tv.setLayoutParams(params);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         relativeLayout.addView(tv);
+        */
         return true;
     }
 
@@ -323,7 +320,7 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         for (int i = 0; i < POOL_SIZE; ++i) {
-            final ScrabbleTile button = (ScrabbleTile) findViewById(bottomLineIDs[i]);
+            final ScrabbleTile button = (ScrabbleTile) findViewById(rack.getButtonID(i));
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -348,11 +345,11 @@ public class GameActivity extends AppCompatActivity {
             params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             if (i != 0) {
                 params.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                params.addRule(RelativeLayout.RIGHT_OF, bottomLineIDs[i - 1]);
+                params.addRule(RelativeLayout.RIGHT_OF, rack.getButtonID(i-1));
             }
             bt.setLayoutParams(params);
             relativeLayout.addView(bt);
-            bottomLineIDs[i] = bt.getId();
+            rack.setButtonID(i, bt.getId());
         }
 
     }
@@ -361,7 +358,7 @@ public class GameActivity extends AppCompatActivity {
         int count = POOL_SIZE;
         ScrabbleTile x;
         for (int i = 0; i < POOL_SIZE; ++i) {
-            x = (ScrabbleTile) findViewById(bottomLineIDs[i]);
+            x = (ScrabbleTile) findViewById(rack.getButtonID(i));
             if (!x.isEmpty()) {
                 --count;
             }
@@ -370,18 +367,27 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void fillBottomLine() {
-        List letters = bag.getLetters(countBottomLine());
-        int count = letters.size();
+        String letters = bag.getLettersToString(countBottomLine());
+        fillBottomLine(letters);
+        //simplify
+
+    }
+
+    private void fillBottomLine(String text) {
+        int count = text.length();
         for (int i = 0; i < count; ++i) {
-            String string = "" + letters.get(0);
-            ScrabbleTile btn = (ScrabbleTile) findViewById(bottomLineIDs[i]);
+            ScrabbleTile btn = (ScrabbleTile) findViewById(rack.getButtonID(i));
             if (btn.isEmpty()) {
+                String string = "" + text.charAt(0);
                 btn.setText(string);
-                letters.remove(0);
+                text = text.substring(1);
             }
-
-
         }
+    }
+
+    private void fisrtFillingRack() {
+        String d = dic.getRequiredSize(7);
+        fillBottomLine(d);
     }
 
     private final int POOL_SIZE = 7;
@@ -476,6 +482,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void addWordToStore(String word) {
+        curPlayer.addPlayedWord(word);
         playedWords.add(word);
     }
 }

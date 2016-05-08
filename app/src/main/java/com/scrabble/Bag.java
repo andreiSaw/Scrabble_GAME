@@ -52,15 +52,18 @@ public class Bag {
 
     private List<String> list;
 
-    public List<String> getLetters(int count) {
-        List<String> retList = new ArrayList<>();
+    public String getLettersToString(int count) {
+       // List<String> retList = new ArrayList<>();
+        String retString="";
         Random rnd = new Random();
         for (int i = 0; i < count; ++i) {
             int x = rnd.nextInt(getCount());
-            retList.add(list.get(x));
+            //retList.add(list.get(x));
+            retString+=list.get(x);
             list.remove(x);
         }
-        return retList;
+        return retString;
+       // return retList;
     }
 
     public int getCount() {
