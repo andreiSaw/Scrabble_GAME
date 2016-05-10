@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void infoButtonOnClick(View view) {
-        //   Intent intent = new Intent(MainActivity.this, InfoTab.class);
-        // MainActivity.this.startActivity(intent);
+        Intent intent = new Intent(MainActivity.this, InfoTab.class);
+        MainActivity.this.startActivity(intent);
     }
 }

@@ -15,7 +15,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_success_selector"
-        android:text="Player1"/>
+        android:text="@string/StringForButtonP1"/>
 
     <Button
         android:id="@+id/buttonForScore1"
@@ -33,7 +33,7 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="21dp"
         android:background="@drawable/button_danger_selector"
-        android:text="Player2"/>
+        android:text="@string/StringForButtonP2"/>
 
     <Button
         android:id="@+id/buttonForScore2"
