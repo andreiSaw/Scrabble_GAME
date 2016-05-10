@@ -1,13 +1,9 @@
 package dawg_pack;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.lang.StringBuilder;
 import java.util.Map.Entry;
-import java.util.ArrayList;
-import java.io.IOException;
-import java.util.Scanner;
-import java.nio.charset.StandardCharsets;
 
 /* 
  * This is a Java implementation of a deterministic acyclic finite
@@ -43,118 +39,6 @@ public class DAFSA {
         _root = new DAFSA_Node();
         _uncheckedNodes = new ArrayList<Triple>();
         _minimizedNodes = new HashSet<DAFSA_Node>(); //TODO type
-    }
-
-    //A class representing an immutable 3-tuple of (node, character, node)
-    private class Triple {
-        public final DAFSA_Node node;
-        public final Character letter;
-        public final DAFSA_Node next;
-
-        public Triple(DAFSA_Node no, Character le, DAFSA_Node ne) {
-            node = no;
-            letter = le;
-            next = ne;
-        }
-    }
-
-    //A (static) class representing a node in the data structure.
-    private static class DAFSA_Node {
-        //class variables
-        private static int currentID = 0;
-
-        //instance variables
-        private int _id;
-        private Boolean _final;
-        private HashMap<Character, DAFSA_Node> _edges;
-
-        public DAFSA_Node() {
-            _id = new Integer(DAFSA_Node.currentID);
-            DAFSA_Node.currentID++;
-            _final = false;
-            _edges = new HashMap<Character, DAFSA_Node>();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            System.out.println("called");
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            DAFSA_Node other = (DAFSA_Node) obj;
-            return (_id == other.getId() && _final == other.getFinal() && _edges == other.getEdges());
-        }
-
-		/*
-        @Override
-		public int hashCode(){
-			int hash = 1;
-			hash += 17*_id;
-			hash += 31*_final.hashCode();
-			hash += 13*_edges.hashCode();
-			return hash;
-		}
-		*/
-
-        //representation of this node as a string
-        public String toString() {
-            StringBuilder sb = new StringBuilder();
-            if (_final) {
-                sb.append("1");
-            } else {
-                sb.append("0");
-            }
-            for (Entry<Character, DAFSA_Node> entry : _edges.entrySet()) {
-                sb.append("_");
-                sb.append(entry.getKey());
-                sb.append("_");
-                sb.append(entry.getValue().getId());
-            }
-            return sb.toString();
-        }
-
-        //accessors
-        public int getId() {
-            return _id;
-        }
-
-        public Boolean getFinal() {
-            return _final;
-        }
-
-        //mutators
-        public void setId(int i) {
-            _id = i;
-        }
-
-        public void setFinal(Boolean b) {
-            _final = b;
-        }
-
-        //add edges to the hashmap
-        public void addEdge(Character letter, DAFSA_Node destination) {
-            _edges.put(letter, destination);
-        }
-
-        public Boolean containsEdge(Character letter) {
-            return _edges.containsKey(letter);
-        }
-
-        public DAFSA_Node traverseEdge(Character letter) {
-            return _edges.get(letter);
-        }
-
-        public int numEdges() {
-            return _edges.size();
-        }
-
-        public HashMap<Character, DAFSA_Node> getEdges() {
-            return _edges;
-        }
-
     }
 
     public void insert(String word) {
@@ -219,13 +103,7 @@ public class DAFSA {
             if (!foundMatch) {
                 _minimizedNodes.add(t.next);
             }
-            _uncheckedNodes.remove(i);/*
-			if (_minimizedNodes.contains(t.next)){
-				t.node.addEdge(t.letter, t.next);
-			} else {
-				_minimizedNodes.add(t.next);
-			}
-			_uncheckedNodes.remove(i);*/
+            _uncheckedNodes.remove(i);
         }
     }
 
@@ -234,17 +112,13 @@ public class DAFSA {
         Character letter;
         for (int i = 0; i < word.length(); i++) {
             letter = word.charAt(i);
-            if (node.containsEdge(letter) == false) {
+            if (!node.containsEdge(letter)) {
                 return false;
             } else {
                 node = node.traverseEdge(letter);
             }
         }
-        if (node.getFinal() == true) {
-            return true;
-        } else {
-            return false;
-        }
+        return node.getFinal();
     }
 
     public int nodeCount() {
@@ -269,20 +143,105 @@ public class DAFSA {
         //minimize all unchecked nodes
         minimize(0);
     }
-/*
-	public static void main(String[] args) {
-		DAFSA d = new DAFSA();
-		int global_count = 0;
-		for (int i=0; i<args.length; i++){
-			global_count += d.parseWordsFromFile(args[i]);
-		}
-		d.finish();
-		System.out.println("Finished! Inserted " + global_count + " words from " + args.length + " files.");
-		System.out.println("Node count: " + d.nodeCount());
-		System.out.println("Edge count: " + d.edgeCount());
 
+    //A (static) class representing a node in the data structure.
+    private static class DAFSA_Node {
+        //class variables
+        private static int currentID = 0;
 
-		System.out.println("contains hello: " + d.contains("hello"));
-	}
-*/
+        //instance variables
+        private int _id;
+        private Boolean _final;
+        private HashMap<Character, DAFSA_Node> _edges;
+
+        public DAFSA_Node() {
+            _id = new Integer(DAFSA_Node.currentID);
+            DAFSA_Node.currentID++;
+            _final = false;
+            _edges = new HashMap<Character, DAFSA_Node>();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            System.out.println("called");
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            DAFSA_Node other = (DAFSA_Node) obj;
+            return (_id == other.getId() && _final == other.getFinal() && _edges == other.getEdges());
+        }
+
+        //representation of this node as a string
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            if (_final) {
+                sb.append("1");
+            } else {
+                sb.append("0");
+            }
+            for (Entry<Character, DAFSA_Node> entry : _edges.entrySet()) {
+                sb.append("_");
+                sb.append(entry.getKey());
+                sb.append("_");
+                sb.append(entry.getValue().getId());
+            }
+            return sb.toString();
+        }
+
+        //accessors
+        public int getId() {
+            return _id;
+        }
+
+        //mutators
+        public void setId(int i) {
+            _id = i;
+        }
+
+        public Boolean getFinal() {
+            return _final;
+        }
+
+        public void setFinal(Boolean b) {
+            _final = b;
+        }
+
+        //add edges to the hashmap
+        public void addEdge(Character letter, DAFSA_Node destination) {
+            _edges.put(letter, destination);
+        }
+
+        public Boolean containsEdge(Character letter) {
+            return _edges.containsKey(letter);
+        }
+
+        public DAFSA_Node traverseEdge(Character letter) {
+            return _edges.get(letter);
+        }
+
+        public int numEdges() {
+            return _edges.size();
+        }
+
+        public HashMap<Character, DAFSA_Node> getEdges() {
+            return _edges;
+        }
+
+    }
+
+    //A class representing an immutable 3-tuple of (node, character, node)
+    private class Triple {
+        public final DAFSA_Node node;
+        public final Character letter;
+        public final DAFSA_Node next;
+
+        public Triple(DAFSA_Node no, Character le, DAFSA_Node ne) {
+            node = no;
+            letter = le;
+            next = ne;
+        }
+    }
 }

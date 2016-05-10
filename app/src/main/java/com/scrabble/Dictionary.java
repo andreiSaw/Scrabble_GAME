@@ -14,6 +14,10 @@ public class Dictionary {
     public Dictionary() {
     }
 
+    public void addWord(String w) {
+        dic.add(w);
+    }
+
     private String rearrangeWord(String source) {
         Random rnd = new Random();
         int length = source.length();

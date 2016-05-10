@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.scrabble" >
+<manifest
+    package="com.scrabble"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:allowBackup="true"
@@ -18,13 +19,6 @@
         <activity android:name=".GameActivity" >
         </activity>
         <activity android:name=".ScoreTable" >
-        </activity>
-        <activity
-            android:name=".InfoTab"
-            android:label="@string/title_activity_info_tab"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
-        <activity android:name=".WordsTable" >
         </activity>
     </application>
 

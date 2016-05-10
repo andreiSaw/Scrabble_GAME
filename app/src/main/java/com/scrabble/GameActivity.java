@@ -16,132 +16,34 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Scanner;
 import java.util.Vector;
 
-import dawg_pack.DAFSA;
 import trie_pack.Trie;
 
 public class GameActivity extends AppCompatActivity {
+    private static int WIDTH = 1080, HEIGHT = 1920;
+    private static double coef = 0.1388888888888889;
+    private static int _size = 150;
+    private final int POOL_SIZE = 7;
     Player p1, p2;
     Player curPlayer;
     Button sbmButton, scrButton, plrButton;
     Rack rack;
-    Trie trie;
+    Trie trie = new Trie();
     Dictionary dic = new Dictionary();
     Board pool;
     int dopID;
     String _letterBuf = "";
     Vector<Pair<String, Integer>> vectorOfLettersWorth;
     List<String> playedWords = new ArrayList<>();
-    private Bag bag;
-    private static int WIDTH = 1080, HEIGHT = 1920;
-    private static double coef = 0.1388888888888889;
-    private static int _size = 150;
 
     /*
         private static final Color DL_COLOR = new Color(140, 230, 250);
         private static final Color DW_COLOR = new Color(255, 150, 150);
         private static final Color TL_COLOR = new Color(176, 229, 124);
     */
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
-        loadGameResolution();
-        loadVocab();
-        loadPlayers();
-        loadPool();
-        loadTable();
-        dic.loadDic(this.getResources().openRawResource(R.raw.words));
-        loadRack();
-        fisrtFillingRack();
-        loadAllButtons();
-        loadDistribution();
-        loadListeners();
-
-    }
-
-    private void loadGameResolution() {
-        Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
-        ScrabbleTile.setResolution(width, height);
-        HEIGHT = height;
-        WIDTH = width;
-        double d = (WIDTH) * coef;
-        _size = (int) d;
-    }
-
-    private void loadAllButtons() {
-        loadSubmitButton();
-        loadScoreButton();
-        loadPlayerButton();
-    }
-
-    private void loadSubmitButton() {
-        int _margin = 1;
-        sbmButton = new Button(this);
-        sbmButton.setText("S U B M I T");
-        sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(_size * 2, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE - 1));
-        params.setMargins(_margin, _margin, _margin, _margin);
-        sbmButton.setLayoutParams(params);
-        sbmButton.setId(++dopID);
-        relativeLayout.addView(sbmButton);
-        sbmButton.setOnClickListener(submitButtonListener);
-    }
-
-    private void loadScoreButton() {
-        int _margin = 1;
-        scrButton = new Button(this);
-        scrButton.setText("S C O R E");
-        scrButton.setBackgroundResource(R.drawable.button_orange_opacity);
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(_size * 2, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(_margin, _margin, _margin, _margin);
-        params.addRule(RelativeLayout.LEFT_OF, sbmButton.getId());
-        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE / 2));
-        scrButton.setLayoutParams(params);
-        scrButton.setId(++dopID);
-        relativeLayout.addView(scrButton);
-        scrButton.setOnClickListener(scrButtonListener);
-    }
-
-    private void loadPlayerButton() {
-        int _margin = 1;
-        plrButton = new Button(this);
-        plrButton.setText(curPlayer.getName());
-        plrButton.setBackgroundResource(R.drawable.button_info_selector);
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.LEFT_OF, scrButton.getId());
-        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(0));
-        params.setMargins(_margin, _margin, _margin, _margin);
-        plrButton.setLayoutParams(params);
-        plrButton.setId(++dopID);
-        relativeLayout.addView(plrButton);
-    }
-
-
-    private void loadPlayers() {
-        p1 = new Player("Player1");
-        p2 = new Player("Player2");
-        curPlayer = p1;
-    }
-
-    private void loadPool() {
-        pool = new Board(POOL_SIZE);
-        rack = new Rack(POOL_SIZE);
-        bag = new Bag();
-    }
-
+    private Bag bag;
     private Button.OnClickListener scrButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -227,6 +129,7 @@ public class GameActivity extends AppCompatActivity {
                                 ++ii;
                                 x = (ScrabbleTile) findViewById(pool.getButtonID(ii, jj));
                                 x.setLocked(true);
+                                pool.setButtonLocked(ii, jj, true);
                             }
                             while (ii != rowEnds);
                         }
@@ -284,6 +187,7 @@ public class GameActivity extends AppCompatActivity {
                                 ++jj;
                                 x = (ScrabbleTile) findViewById(pool.getButtonID(ii, jj));
                                 x.setLocked(true);
+                                pool.setButtonLocked(ii, jj, true);
                             }
                             while (jj != columnEnds);
                         }
@@ -316,6 +220,103 @@ public class GameActivity extends AppCompatActivity {
             fillRack();//ask new word from trie to rack
         }
     };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_game);
+        loadGameResolution();
+        loadDataWithScanner();
+        loadPlayers();
+        loadPool();
+        loadTable();
+        dic.loadDic(this.getResources().openRawResource(R.raw.words));
+        loadRack();
+        fisrtFillingRack();
+        loadAllButtons();
+        loadDistribution();
+        loadListeners();
+
+    }
+
+    private void loadGameResolution() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y;
+        ScrabbleTile.setResolution(width, height);
+        HEIGHT = height;
+        WIDTH = width;
+        double d = (WIDTH) * coef;
+        _size = (int) d;
+    }
+
+    private void loadAllButtons() {
+        loadSubmitButton();
+        loadScoreButton();
+        loadPlayerButton();
+    }
+
+    private void loadSubmitButton() {
+        int _margin = 1;
+        sbmButton = new Button(this);
+        sbmButton.setText("S U B M I T");
+        sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE - 1));
+        params.setMargins(_margin, _margin, _margin, _margin);
+        sbmButton.setLayoutParams(params);
+        sbmButton.setId(++dopID);
+        relativeLayout.addView(sbmButton);
+        sbmButton.setOnClickListener(submitButtonListener);
+    }
+
+    private void loadScoreButton() {
+        int _margin = 1;
+        scrButton = new Button(this);
+        scrButton.setText("S C O R E");
+        scrButton.setBackgroundResource(R.drawable.button_orange_opacity);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(_margin, _margin, _margin, _margin);
+        params.addRule(RelativeLayout.LEFT_OF, sbmButton.getId());
+        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE / 2));
+        scrButton.setLayoutParams(params);
+        scrButton.setId(++dopID);
+        relativeLayout.addView(scrButton);
+        scrButton.setOnClickListener(scrButtonListener);
+    }
+
+    private void loadPlayerButton() {
+        int _margin = 1;
+        plrButton = new Button(this);
+        plrButton.setText(curPlayer.getName());
+        plrButton.setBackgroundResource(R.drawable.button_info_selector);
+        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        params.addRule(RelativeLayout.LEFT_OF, scrButton.getId());
+        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(0));
+        params.setMargins(_margin, _margin, _margin, _margin);
+        plrButton.setLayoutParams(params);
+        plrButton.setId(++dopID);
+        relativeLayout.addView(plrButton);
+    }
+
+    private void loadPlayers() {
+        p1 = new Player("Player1");
+        p2 = new Player("Player2");
+        curPlayer = p1;
+    }
+
+    private void loadPool() {
+        pool = new Board(POOL_SIZE);
+        rack = new Rack(POOL_SIZE);
+        bag = new Bag();
+    }
 
     private void changeCurrentPlayer() {
         if (curPlayer.equals(p1)) {
@@ -461,8 +462,6 @@ public class GameActivity extends AppCompatActivity {
         fillRack(d);
     }
 
-    private final int POOL_SIZE = 7;
-
     private boolean loadVocab() {
         DataInputStream dataInputStream;
         trie = new Trie();
@@ -483,7 +482,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void loadTable() {
 
-        int curID = R.id.button00;
+        int curID = R.id.veryFirstButton;
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
 
         pool.setButtonID(0, 0, curID);
@@ -542,6 +541,7 @@ public class GameActivity extends AppCompatActivity {
                     bt.addRule(RelativeLayout.ALIGN_PARENT_START);
                     bt.setLocked(false);
                     bt.setEmpty(true);
+                    pool.setButtonEmpty(i, j, true);
                 }
             }
         }
@@ -553,33 +553,21 @@ public class GameActivity extends AppCompatActivity {
         playedWords.add(word);
     }
 
-    private int usingDawg() {
-        DataInputStream dataInputStream;
-        String text;
-        DAFSA dafsa = new DAFSA();
-        int wordCount = 0;
-        try {
-            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words));
-            while (dataInputStream.available() > 0) {
-                text = dataInputStream.readLine();
-                dafsa.insert(text);
-                wordCount++;
-            }
-            dataInputStream.close();
+    private void loadDataWithScanner() {
+        Scanner scanner = new Scanner(this.getResources().openRawResource(R.raw.words));
+        while (scanner.hasNextLine()) {
+            String nextline = scanner
+                    .nextLine()
+                    .toLowerCase()
+                    .replaceAll("\n", "")
+                    .replaceAll("'", "");
+            String[] words = nextline.split(" ");
+            for (String word : words) {
+                trie.addWord(word);
+                dic.addWord(word);
 
-            /*
-            while (scanner.hasNextLine()){
-                String nextline = scanner
-                        .nextLine()
-                        .toLowerCase()
-                        .replaceAll("\n", "")
-                        .replaceAll("'", "");
-                String[] words = nextline.split(" ");
-               */
-        } catch (IOException e) {
-            e.printStackTrace();
+            }
         }
-        return wordCount;
     }
 }
 

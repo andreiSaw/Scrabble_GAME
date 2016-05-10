@@ -1,10 +1,9 @@
 package com.scrabble;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -20,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void infoButtonOnClick(View view) {
-        Intent intent = new Intent(MainActivity.this, InfoTab.class);
-        MainActivity.this.startActivity(intent);
+        //   Intent intent = new Intent(MainActivity.this, InfoTab.class);
+        // MainActivity.this.startActivity(intent);
     }
 }
