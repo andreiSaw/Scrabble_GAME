@@ -5,17 +5,21 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import java.util.Objects;
 
 public class ScrabbleTile extends Button
-
 {
     private boolean lock = false;
     private boolean onPool = false;
     private boolean isEmpty;
+    private static int size = 150;
+    // 150 for 1080 is ideal
+    RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(size, size);
 
     private void listen() {
+        setMargins();
         this.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -38,24 +42,48 @@ public class ScrabbleTile extends Button
         });
     }
 
+    private void setMargins() {
+        int _margin = 0;
+        params.setMargins(_margin, _margin, _margin, _margin);
+        this.setLayoutParams(params);
+    }
+
+    public void initWH() {
+        params = new RelativeLayout.LayoutParams(size, size);
+    }
+
     public ScrabbleTile(Context context) {
         super(context);
         listen();
+        initWH();
+    }
+
+    public void addRule(int verb, int anchor) {
+        params.addRule(verb, anchor);
+        this.setLayoutParams(params);
+    }
+
+    public void addRule(int verb) {
+        params.addRule(verb);
+        this.setLayoutParams(params);
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs) {
         super(context, attrs);
         listen();
+        initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         listen();
+        initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         listen();
+        initWH();
     }
 
     public boolean isLocked() {
@@ -91,5 +119,15 @@ public class ScrabbleTile extends Button
     private void checkEmptiness() {
         //if (Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ")) {
         isEmpty = Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ");
+    }
+
+    private static int WIDTH = 1080, HEIGHT = 1920;
+
+    public static void setResolution(int w, int h) {
+        WIDTH = w;
+        HEIGHT = h;
+        double coef = 0.1388888888888889;
+        double d = (double) WIDTH * coef;
+        size = (int) d;
     }
 }

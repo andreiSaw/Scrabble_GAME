@@ -3,7 +3,10 @@ package com.scrabble;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
+
+import java.util.List;
 
 public class ScoreTable extends AppCompatActivity {
 
@@ -12,6 +15,7 @@ public class ScoreTable extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_score_table);
         Intent intent = getIntent();
+        /*
         String s1 = intent.getStringExtra("Player1");
         String s2 = intent.getStringExtra("Player2");
         int x = s1.indexOf(" ");
@@ -19,16 +23,35 @@ public class ScoreTable extends AppCompatActivity {
         p1.setScore(Integer.parseInt(s1.substring(x + 1)));
         Player p2 = new Player(s2.substring(0, x = s2.indexOf(" ")));
         p2.setScore(Integer.parseInt(s2.substring(x + 1)));
-
-        init(p1, p2);
+        */
+        List list = (List) intent.getSerializableExtra("Players");
+        player1 = (Player) list.get(0);
+        player2 = (Player) list.get(1);
+        init();
     }
 
-    public void init(Player p1, Player p2) {
+    Player player1, player2;
+
+    public void init() {
         Button btn1 = (Button) findViewById(R.id.buttonForScore1);
-        String x = p1.getScoreToString();
+        String x = player1.getScoreToString();
         btn1.setText((x));
         btn1 = (Button) findViewById(R.id.buttonForScore2);
-        x = p2.getScoreToString();
+        x = player2.getScoreToString();
         btn1.setText(x);
+    }
+
+    public void score1OnClick(View view) {
+        goNextShowWords(player1);
+    }
+
+    public void score2OnClick(View view) {
+        goNextShowWords(player2);
+    }
+
+    private void goNextShowWords(Player p) {
+        Intent intent = new Intent(ScoreTable.this, WordsTable.class);
+        intent.putExtra("Player", p);
+        ScoreTable.this.startActivity(intent);
     }
 }
