@@ -23,7 +23,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_marginTop="33dp"
-        android:onClick="score1OnClick"
         android:background="@drawable/button_success_selector"/>
 
     <Button
@@ -42,6 +41,5 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/buttonForPlayer2"
         android:layout_centerHorizontal="true"
-        android:onClick="score2OnClick"
         android:background="@drawable/button_danger_selector"/>
 </RelativeLayout>
