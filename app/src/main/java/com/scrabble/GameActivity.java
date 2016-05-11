@@ -46,11 +46,6 @@ public class GameActivity extends AppCompatActivity {
     List<String> playedWords = new ArrayList<>();
     private Bag bag;
 
-    /*
-        private static final Color DL_COLOR = new Color(140, 230, 250);
-        private static final Color DW_COLOR = new Color(255, 150, 150);
-        private static final Color TL_COLOR = new Color(176, 229, 124);
-    */
     private Button.OnClickListener scrButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -524,12 +519,15 @@ public class GameActivity extends AppCompatActivity {
                     bt.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
                     bt.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     bt.addRule(RelativeLayout.ALIGN_LEFT);
+
                     int x = View.generateViewId();
                     bt.setId(x);
                     pool.setButtonID(i, j, x);
                     bt.setText(" ");
                     pool.setButtonValue(i, j, " ");
 
+                    bt.setMargins();
+                    bt.loadBonuses(i, j);
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j != 0) {
                     ScrabbleTile bt = new ScrabbleTile(this);
@@ -542,6 +540,8 @@ public class GameActivity extends AppCompatActivity {
 
                     bt.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
                     bt.setMarginForTop();
+                    bt.loadBonuses(i, j);
+
                     relativeLayout.addView(bt);
                 } else if (i != 0) {
                     //} else if (i != 0 && j == 0) {
@@ -553,18 +553,22 @@ public class GameActivity extends AppCompatActivity {
                     bt.setText(" ");
                     pool.setButtonValue(i, j, " ");
 
-                    //  bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    bt.setMargins();
+                    bt.loadBonuses(i, j);
                     bt.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
+                    bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+
                     relativeLayout.addView(bt);
                 } else {
                     //} else if (i == 0 && j == 0) {
                     ScrabbleTile bt = ((ScrabbleTile) findViewById(pool.getButtonID(i, j)));
+
                     bt.initWH();
-                    bt.addRule(RelativeLayout.BELOW, R.id.toolbar);
-                    // bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                     bt.setLocked(false);
                     bt.setEmpty(true);
                     bt.setMarginForTop();
+                    bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    bt.loadBonuses(i, j);
                 }
             }
         }
