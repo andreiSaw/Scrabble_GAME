@@ -4,11 +4,19 @@ import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Pair;
 import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+
+import com.mikepenz.iconics.typeface.FontAwesome;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -33,17 +41,16 @@ public class GameActivity extends AppCompatActivity {
     Trie trie = new Trie();
     Dictionary dic = new Dictionary();
     Board pool;
-    int dopID;
     String _letterBuf = "";
     Vector<Pair<String, Integer>> vectorOfLettersWorth;
     List<String> playedWords = new ArrayList<>();
+    private Bag bag;
 
     /*
         private static final Color DL_COLOR = new Color(140, 230, 250);
         private static final Color DW_COLOR = new Color(255, 150, 150);
         private static final Color TL_COLOR = new Color(176, 229, 124);
     */
-    private Bag bag;
     private Button.OnClickListener scrButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -225,18 +232,43 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+        loadNavD();
         loadGameResolution();
-        loadDataWithScanner();
         loadPlayers();
         loadPool();
         loadTable();
-        dic.loadDic(this.getResources().openRawResource(R.raw.words));
+        loadDataWithScanner();
         loadRack();
         fisrtFillingRack();
         loadAllButtons();
         loadDistribution();
         loadListeners();
 
+    }
+
+    private void loadNavD() {
+        /*
+        https://habrahabr.ru/post/250765/
+         */
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        new Drawer()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .withActionBarDrawerToggle(true)
+                .withHeader(R.layout.drawer_header)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_home).withIcon(FontAwesome.Icon.faw_home).withBadge("99").withIdentifier(1),
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_free_play).withIcon(FontAwesome.Icon.faw_gamepad),
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_custom).withIcon(FontAwesome.Icon.faw_eye).withBadge("6").withIdentifier(2),
+                        new SectionDrawerItem().withName(R.string.drawer_item_settings),
+                        new SecondaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_cog),
+                        new SecondaryDrawerItem().withName(R.string.drawer_item_open_source).withIcon(FontAwesome.Icon.faw_question).setEnabled(false),
+                        new DividerDrawerItem(),
+                        new SecondaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_github).withBadge("12+").withIdentifier(1)
+                )
+                .build();
     }
 
     private void loadGameResolution() {
@@ -269,7 +301,7 @@ public class GameActivity extends AppCompatActivity {
         params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE - 1));
         params.setMargins(_margin, _margin, _margin, _margin);
         sbmButton.setLayoutParams(params);
-        sbmButton.setId(++dopID);
+        sbmButton.setId(View.generateViewId());
         relativeLayout.addView(sbmButton);
         sbmButton.setOnClickListener(submitButtonListener);
     }
@@ -285,7 +317,7 @@ public class GameActivity extends AppCompatActivity {
         params.addRule(RelativeLayout.LEFT_OF, sbmButton.getId());
         params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE / 2));
         scrButton.setLayoutParams(params);
-        scrButton.setId(++dopID);
+        scrButton.setId(View.generateViewId());
         relativeLayout.addView(scrButton);
         scrButton.setOnClickListener(scrButtonListener);
     }
@@ -302,7 +334,7 @@ public class GameActivity extends AppCompatActivity {
         params.addRule(RelativeLayout.ABOVE, rack.getButtonID(0));
         params.setMargins(_margin, _margin, _margin, _margin);
         plrButton.setLayoutParams(params);
-        plrButton.setId(++dopID);
+        plrButton.setId(View.generateViewId());
         relativeLayout.addView(plrButton);
     }
 
@@ -361,15 +393,6 @@ public class GameActivity extends AppCompatActivity {
             System.out.println("File Not found");
             return false;
         }
-        /*
-        tv = new TextView(this);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.ALIGN_LEFT);
-        params.addRule(RelativeLayout.ABOVE, sbmButton.getId());
-        tv.setLayoutParams(params);
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        relativeLayout.addView(tv);
-        */
         return true;
     }
 
@@ -412,14 +435,16 @@ public class GameActivity extends AppCompatActivity {
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         for (int i = 0; i < POOL_SIZE; ++i) {
             ScrabbleTile bt = new ScrabbleTile(this);
-            bt.setId(++dopID);
+            int x = View.generateViewId();
+            bt.setId(x);
+            rack.setButtonID(i, x);
             bt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             if (i != 0) {
                 bt.addRule(RelativeLayout.CENTER_HORIZONTAL);
                 bt.addRule(RelativeLayout.RIGHT_OF, rack.getButtonID(i - 1));
             }
             relativeLayout.addView(bt);
-            rack.setButtonID(i, bt.getId());
+
         }
 
     }
@@ -440,7 +465,6 @@ public class GameActivity extends AppCompatActivity {
         String letters = bag.getLettersToString(countRack());
         fillRack(letters);
         //simplify
-
     }
 
     private void fillRack(String text) {
@@ -482,10 +506,12 @@ public class GameActivity extends AppCompatActivity {
 
     private void loadTable() {
 
-        int curID = R.id.veryFirstButton;
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-
-        pool.setButtonID(0, 0, curID);
+//TODO Builder pattern
+        pool.setButtonID(0, 0, R.id.veryFirstButton);
+        pool.setButtonValue(0, 0, " ");
+        pool.setButtonEmpty(0, 0, true);
+        pool.setButtonLocked(0, 0, false);
 
 
 //razmetka stranicy
@@ -498,8 +524,7 @@ public class GameActivity extends AppCompatActivity {
                     bt.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
                     bt.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     bt.addRule(RelativeLayout.ALIGN_LEFT);
-
-                    int x = curID++;
+                    int x = View.generateViewId();
                     bt.setId(x);
                     pool.setButtonID(i, j, x);
                     bt.setText(" ");
@@ -509,43 +534,40 @@ public class GameActivity extends AppCompatActivity {
                 } else if (i == 0 && j != 0) {
                     ScrabbleTile bt = new ScrabbleTile(this);
 
-                    int x = curID++;
+                    int x = View.generateViewId();
                     bt.setId(x);
                     pool.setButtonID(i, j, x);
                     bt.setText(" ");
                     pool.setButtonValue(i, j, " ");
 
-                    bt.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                     bt.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
-                    // bt.setLayoutParams(params);
+                    bt.setMarginForTop();
                     relativeLayout.addView(bt);
                 } else if (i != 0) {
                     //} else if (i != 0 && j == 0) {
                     ScrabbleTile bt = new ScrabbleTile(this);
 
-                    int x = curID++;
+                    int x = View.generateViewId();
                     bt.setId(x);
                     pool.setButtonID(i, j, x);
                     bt.setText(" ");
                     pool.setButtonValue(i, j, " ");
 
-                    bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    //  bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                     bt.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     relativeLayout.addView(bt);
                 } else {
                     //} else if (i == 0 && j == 0) {
-                    ScrabbleTile bt = ((ScrabbleTile) findViewById(curID++));
+                    ScrabbleTile bt = ((ScrabbleTile) findViewById(pool.getButtonID(i, j)));
                     bt.initWH();
-                    pool.setButtonID(0, 0, bt.getId());
-                    bt.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-                    bt.addRule(RelativeLayout.ALIGN_PARENT_START);
+                    bt.addRule(RelativeLayout.BELOW, R.id.toolbar);
+                    // bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                     bt.setLocked(false);
                     bt.setEmpty(true);
-                    pool.setButtonEmpty(i, j, true);
+                    bt.setMarginForTop();
                 }
             }
         }
-        dopID = curID;
     }
 
     private void addWordToStore(String word) {
@@ -565,7 +587,6 @@ public class GameActivity extends AppCompatActivity {
             for (String word : words) {
                 trie.addWord(word);
                 dic.addWord(word);
-
             }
         }
     }
