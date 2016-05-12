@@ -33,35 +33,33 @@ public class ScrabbleTile extends Button {
 
     public ScrabbleTile(Context context) {
         super(context);
-        listen();
+        //  listen();
         initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs) {
         super(context, attrs);
-        listen();
+        // listen();
         initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        listen();
+        //listen();
         initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        listen();
+        // listen();
         initWH();
     }
 
     public static void setResolution(int w, int h) {
-        int WIDTH = w;
-        int HEIGHT = h;
-        double x = (double) (WIDTH - 10 - 2 * 7 * _margin) / (double) 7;
+        double x = (double) (w - 10 - 2 * 7 * _margin) / (double) 7;
         size = (int) x;
         double marginCoef = 0.23148148148148148;
-        double d = (double) WIDTH * marginCoef;
+        double d = (double) w * marginCoef;
         _marginTop = (int) d;
 
     }
@@ -79,7 +77,6 @@ public class ScrabbleTile extends Button {
                 this.setBackgroundResource(R.color.colorLightPinkTile);
                 break;
         }
-
     }
 
     private void listen() {

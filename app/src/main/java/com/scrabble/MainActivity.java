@@ -1,12 +1,18 @@
 package com.scrabble;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
 import android.view.Menu;
@@ -33,7 +39,8 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.Vector;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+    private static final int SHAKE_THRESHOLD = 600;
     private final int POOL_SIZE = 7;
     protected Player curPlayer;
     private Player p1, p2;
@@ -44,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
     private String _letterBuf = "";
     private Vector<Pair<String, Integer>> vectorOfLettersWorth;
     private Bag bag;
-
     private Button.OnClickListener scrButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -134,7 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
                         //set button style to green color
-                        sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                        try {
+                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                            Thread.sleep(1000);
+                            sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
+                        } catch (InterruptedException ex) {
+                            Log.d("test", "Exception caught");
+                        }
                         //delete word from dic
                         dic.removeWord(word);
                         //if one word played -raise flag
@@ -166,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
                 while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
                     word += y;
                     ++curColumn;
-
                     if (curColumn == POOL_SIZE) {
                         break;
                     }
@@ -191,7 +202,13 @@ public class MainActivity extends AppCompatActivity {
                         while (ii != rowEnds);
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
                         //set button style to green color
-                        sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                        try {
+                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
+                            Thread.sleep(1000);
+                            sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
+                        } catch (InterruptedException ex) {
+                            Log.d("test", "Exception caught");
+                        }
                         //delete word from dic
                         dic.removeWord(word);
                         //if one word played -raise flag
@@ -201,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 word = "";
             }
             //TODO: kick out all not locked tiles
+            /*
             for (int i = 0; i < POOL_SIZE; i++) {
                 for (int j = 0; j < POOL_SIZE; j++) {
                     boolean f1 = pool.isButtonLocked(i, j);
@@ -210,6 +228,18 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+
+            Vector unlockedTilesList=pool.getUnclockedTiles();
+            if(!unlockedTilesList.isEmpty())
+            {
+                int i=0;
+                while(i<unlockedTilesList.size()) {
+                    ScrabbleTile bt = (ScrabbleTile) findViewById((Integer) unlockedTilesList.get(i));
+                    i++;
+                    bt
+                }
+            }
+            */
             //TODO: shake app
             //if nor 1 one word played - turn is stays over current player
             if (!flagIfWordPlayed) {
@@ -240,11 +270,19 @@ public class MainActivity extends AppCompatActivity {
         public void onDrawerStateChanged(int newState) {
         }
     };
+    private SensorManager senSensorManager;
+    private Sensor senAccelerometer;
+    private long lastUpdate = 0;
+    private float last_x, last_y, last_z;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         loadPlayers();
         loadNavD();
@@ -258,6 +296,18 @@ public class MainActivity extends AppCompatActivity {
         loadDistribution();
         loadListeners();
 
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        senSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void loadNavD() {
@@ -313,38 +363,10 @@ public class MainActivity extends AppCompatActivity {
                                     intent = new Intent(MainActivity.this, InfoTab.class);
                                     MainActivity.this.startActivity(intent);
                                     break;
-                                /*
-                                case "Player1":
-                                    ScoreTable.player1 = p1;
-                                    ScoreTable.player2 = p2;
-                                    intent = new Intent(MainActivity.this, ScoreTable.class);
-                                    MainActivity.this.startActivity(intent);
-                                    break;
-                                case "Player2":
-                                    ScoreTable.player1 = p1;
-                                    ScoreTable.player2 = p2;
-                                    intent = new Intent(MainActivity.this, ScoreTable.class);
-                                    MainActivity.this.startActivity(intent);
-                                    break;*/
                                 default:
                                     break;
                             }
                         }
-/*
-                        if (drawerItem instanceof Badgeable) {
-                            Badgeable badgeable = (Badgeable) drawerItem;
-                            if (badgeable.getBadge() != null) {
-                                // учтите, не делайте так, если ваш бейдж содержит символ "+"
-                                try {
-                                    int badge = Integer.valueOf(badgeable.getBadge());
-                                    if (badge > 0) {
-                                        drawerResult.updateBadge(String.valueOf(badge - 1), position);
-                                    }
-                                } catch (Exception e) {
-                                    Log.d("test", "Не нажимайте на бейдж, содержащий плюс! :)");
-                                }
-                                }
-                                */
                     }
                 })
                 .build();
@@ -383,7 +405,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     private void loadGameResolution() {
         Display display = getWindowManager().getDefaultDisplay();
@@ -518,15 +539,21 @@ public class MainActivity extends AppCompatActivity {
         //
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
+                final int x1 = i;
+                final int y1 = j;
                 final ScrabbleTile button = (ScrabbleTile) findViewById(pool.getButtonID(i, j));
                 button.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
                         if (!Objects.equals(_letterBuf, "") && button.isEmpty()) {
                             button.setText(_letterBuf);
+                            pool.setButtonValue(x1, y1, _letterBuf);
                             _letterBuf = "";
+                            pool.setButtonEmpty(x1, y1, false);
                         } else if (!button.isEmpty() && !button.isLocked() && Objects.equals(_letterBuf, "")) {
                             _letterBuf = button.getText().toString();
                             button.setText(" ");
+                            pool.setButtonValue(x1, y1, " ");
+                            pool.setButtonEmpty(x1, y1, true);
                         }
                     }
                 });
@@ -534,14 +561,17 @@ public class MainActivity extends AppCompatActivity {
         }
         for (int i = 0; i < POOL_SIZE; ++i) {
             final ScrabbleTile button = (ScrabbleTile) findViewById(rack.getButtonID(i));
+            final int x1 = i;
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (Objects.equals(_letterBuf, "") && !button.isEmpty()) {
                         _letterBuf = button.getText().toString();
+                        rack.setButtonValue(x1, "");
                         button.setText(" ");
                     } else if (!Objects.equals(_letterBuf, "") && button.isEmpty()) {
                         button.setText(_letterBuf);
+                        rack.setButtonValue(x1, _letterBuf);
                         _letterBuf = "";
                     }
                 }
@@ -607,24 +637,6 @@ public class MainActivity extends AppCompatActivity {
         fillRack(d);
     }
 
-    /* private boolean loadVocab() {
-         DataInputStream dataInputStream;
-         trie = new Trie();
-         String text;
-         try {
-             dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.words));
-             while (dataInputStream.available() > 0) {
-                 text = dataInputStream.readLine();
-                 trie.addWord(text);
-             }
-             dataInputStream.close();
-         } catch (IOException ex) {
-             System.out.println("File Not found");
-             return false;
-         }
-         return true;
-     }
- */
     private void loadTable() {
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
@@ -729,6 +741,59 @@ public class MainActivity extends AppCompatActivity {
                 dic.addWord(word);
             }
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+        Sensor mySensor = sensorEvent.sensor;
+        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = sensorEvent.values[0];
+            float y = sensorEvent.values[1];
+            float z = sensorEvent.values[2];
+
+            long curTime = System.currentTimeMillis();
+
+            if ((curTime - lastUpdate) > 100) {
+                long diffTime = (curTime - lastUpdate);
+                lastUpdate = curTime;
+
+                float speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+
+                if (speed > SHAKE_THRESHOLD) {
+                    Vector unlockedTilesVector = pool.getUnclockedTiles();
+                    if (!unlockedTilesVector.isEmpty()) {
+                        int i = 0;
+                        while (i < unlockedTilesVector.size()) {
+                            ScrabbleTile scrabbleTile = (ScrabbleTile) findViewById((Integer) unlockedTilesVector.get(i));
+                            String _letterBuf;
+                            _letterBuf = "" + scrabbleTile.getText();
+                            scrabbleTile.setEmpty(true);
+                            scrabbleTile.setText(" ");
+                            pool.setButtonValueById(scrabbleTile.getId(), " ");
+                            Vector unlockedTiles = rack.pushButtonValue(_letterBuf);
+                            int j = 0;
+                            while (j < unlockedTiles.size()) {
+                                ScrabbleTile scrabbleTile1 = (ScrabbleTile) findViewById((Integer) unlockedTiles.get(j));
+                                scrabbleTile1.setText(rack.getButtonValueById(scrabbleTile1.getId()));
+
+                                ++j;
+                            }
+                            ++i;
+                        }
+                    }
+
+                }
+
+                last_x = x;
+                last_y = y;
+                last_z = z;
+            }
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }
 

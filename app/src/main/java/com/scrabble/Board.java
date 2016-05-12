@@ -1,6 +1,7 @@
 package com.scrabble;
 
 import java.util.Objects;
+import java.util.Vector;
 
 public class Board {
     private final static int[][] bonusgrid = ScrabbleTile.bonusGrid;
@@ -43,12 +44,11 @@ public class Board {
     }
 
     public boolean isButtonEmpty(int i, int j) {
-        isButtonValueEmpty(i,j);
+        isButtonValueEmpty(i, j);
         return emptyBoard[i][j];
     }
 
-    private void isButtonValueEmpty(int i, int j)
-    {
+    private void isButtonValueEmpty(int i, int j) {
         emptyBoard[i][j] = Objects.equals(getButtonValue(i, j), " ") || Objects.equals(getButtonValue(i, j), "");
     }
 
@@ -58,5 +58,50 @@ public class Board {
 
     public int getBonus(int i, int j) {
         return bonusgrid[i][j];
+    }
+
+    public Vector getUnclockedTiles() {
+        Vector<Integer> myVector = new Vector<>();
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                if (!isButtonLocked(i, j) && !isButtonEmpty(i, j)) {
+                    myVector.add(getButtonID(i, j));
+                }
+            }
+        }
+        return myVector;
+    }
+
+    protected void setButtonEmpty(int id, boolean flag) {
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                if (id == masOfIDs[i][j]) {
+                    setButtonEmpty(i, j, flag);
+                    return;
+                }
+            }
+        }
+    }
+
+    protected void setButtonLocked(int id, boolean flag) {
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                if (id == masOfIDs[i][j]) {
+                    setButtonLocked(i, j, flag);
+                    return;
+                }
+            }
+        }
+    }
+
+    protected void setButtonValueById(int id, String val) {
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                if (getButtonID(i, j) == id) {
+                    strings[i][j] = val;
+                    return;
+                }
+            }
+        }
     }
 }

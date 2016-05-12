@@ -1,6 +1,7 @@
 package com.scrabble;
 
 import java.util.Objects;
+import java.util.Vector;
 
 public class Rack {
     int[] bottomLineIDs;
@@ -39,16 +40,29 @@ public class Rack {
         return Objects.equals(getButtonValue(index), "");
     }
 
-    public void pushButtonValue(String val) {
+
+    public Vector<Integer> pushButtonValue(String val) {
         int i = 0;
-        while (val.length() > 0&&i!=POOL_SIZE) {
+        Vector<Integer> unlockedTilesVector = new Vector<>();
+        while (val.length() > 0 && i != POOL_SIZE) {
             if (isEmpty(i)) {
                 values[i] = val;
+                unlockedTilesVector.add(getButtonID(i));
                 val = val.substring(1);
             } else {
                 i++;
             }
         }
+        return unlockedTilesVector;
+    }
+
+    protected String getButtonValueById(int id) {
+        for (int i = 0; i < POOL_SIZE; i++) {
+            if (getButtonID(i) == id) {
+                return getButtonValue(i);
+            }
+        }
+        return "";
     }
 }
 
