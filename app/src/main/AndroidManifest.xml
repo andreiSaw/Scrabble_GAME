@@ -12,15 +12,20 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".ScoreTable">
+        <activity
+            android:name=".ScoreTable"
+            android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".InfoTab">
+        <activity
+            android:name=".InfoTab"
+            android:screenOrientation="portrait">
         </activity>
     </application>
 

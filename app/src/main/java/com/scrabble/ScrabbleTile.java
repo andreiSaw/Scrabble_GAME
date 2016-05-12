@@ -22,14 +22,13 @@ public class ScrabbleTile extends Button {
             {ONEP, DBLP, TRPP, TRPP, TRPP, DBLP, ONEP},
             {DBLP, ONEP, ONEP, ONEP, ONEP, ONEP, DBLP}
     };
+    private static final int _margin = 5;
     private static int size = 150;
-    private static int WIDTH = 1080, HEIGHT = 1920;
     // 250 for 1080 is ideal
     private static int _marginTop = 250;
     // 150 for 1080 is ideal
     RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(size, size);
     private boolean lock = false;
-    private boolean onPool = false;
     private boolean isEmpty;
 
     public ScrabbleTile(Context context) {
@@ -57,15 +56,14 @@ public class ScrabbleTile extends Button {
     }
 
     public static void setResolution(int w, int h) {
-        WIDTH = w;
-        HEIGHT = h;
-        //  double coef = 0.1388888888888889;
-        double coef = 0.1265;
+        int WIDTH = w;
+        int HEIGHT = h;
+        double x = (double) (WIDTH - 10 - 2 * 7 * _margin) / (double) 7;
+        size = (int) x;
         double marginCoef = 0.23148148148148148;
-        double d = (double) WIDTH * coef;
-        size = (int) d;
-        d = (double) WIDTH * marginCoef;
+        double d = (double) WIDTH * marginCoef;
         _marginTop = (int) d;
+
     }
 
     public void loadBonuses(int i, int j) {
@@ -108,13 +106,11 @@ public class ScrabbleTile extends Button {
     }
 
     protected void setMargins() {
-        int _margin = 5;
         params.setMargins(_margin, _margin, _margin, _margin);
         this.setLayoutParams(params);
     }
 
     protected void setMarginForTop() {
-        int _margin = 5;
         params.setMargins(_margin, _marginTop, _margin, _margin);
         this.setLayoutParams(params);
     }
@@ -139,14 +135,6 @@ public class ScrabbleTile extends Button {
 
     public void setLocked(boolean lock) {
         this.lock = lock;
-    }
-
-    public boolean isOnPool() {
-        return onPool;
-    }
-
-    public void setOnPool(boolean onPool) {
-        this.onPool = onPool;
     }
 
     public boolean isEmpty() {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Pair;
@@ -220,6 +221,25 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     private Drawer.Result drawerResult = null;
+    private DrawerLayout.DrawerListener mDrawerListenernew = new DrawerLayout.DrawerListener() {
+        @Override
+        public void onDrawerSlide(View drawerView, float slideOffset) {
+        }
+
+        @Override
+        public void onDrawerOpened(View drawerView) {
+            drawerResult.updateBadge(p1.getScoreToString(), 1);
+            drawerResult.updateBadge(p2.getScoreToString(), 2);
+        }
+
+        @Override
+        public void onDrawerClosed(View drawerView) {
+        }
+
+        @Override
+        public void onDrawerStateChanged(int newState) {
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -276,18 +296,37 @@ public class MainActivity extends AppCompatActivity {
                     // Обработка клика
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id, IDrawerItem drawerItem) {
                         if (drawerItem instanceof Nameable) {
-                            String str = MainActivity.this.getString(((Nameable) drawerItem).getNameRes());
-                            Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
+                            String str = ((Nameable) drawerItem).getName();
+                            if (str == null) {
+                                str = MainActivity.this.getString(((Nameable) drawerItem).getNameRes());
+                            }
+                            if (str.contains(p1.getName())) {
+                                str += String.format(" has %d points", p1.getScore());
 
-                            Intent intent = null;
+                            } else if (str.contains(p2.getName())) {
+                                str += String.format(" has %d points", p2.getScore());
+                            }
+                            Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
+                            Intent intent;
                             switch (str) {
                                 case "Help":
                                     intent = new Intent(MainActivity.this, InfoTab.class);
                                     MainActivity.this.startActivity(intent);
                                     break;
-                                case "Score":
+                                /*
+                                case "Player1":
+                                    ScoreTable.player1 = p1;
+                                    ScoreTable.player2 = p2;
                                     intent = new Intent(MainActivity.this, ScoreTable.class);
                                     MainActivity.this.startActivity(intent);
+                                    break;
+                                case "Player2":
+                                    ScoreTable.player1 = p1;
+                                    ScoreTable.player2 = p2;
+                                    intent = new Intent(MainActivity.this, ScoreTable.class);
+                                    MainActivity.this.startActivity(intent);
+                                    break;*/
+                                default:
                                     break;
                             }
                         }
@@ -309,6 +348,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 })
                 .build();
+        DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerListener(mDrawerListenernew);
         //// TODO: onclick draw
 
     }
