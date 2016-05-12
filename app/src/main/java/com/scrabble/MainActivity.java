@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //find where word starts
                 while (curRow != POOL_SIZE) {
                     y = pool.getButtonValue(curRow, curColumn);
-                    if (Objects.equals(y, " ")) {
+                    if (Objects.equals(y, " ") || Objects.equals(y, "")) {
                         ++curRow;
                         //continue;
                     } else {
@@ -124,14 +124,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         while (jj != columnEnds);
 
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                        //set button style to green color
-                        try {
-                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
-                            Thread.sleep(1000);
-                            sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
-                        } catch (InterruptedException ex) {
-                            Log.d("test", ex.getMessage());
-                        }
                         //delete word from dic
                         dic.removeWord(word);
                         //if one word played -raise flag
@@ -151,7 +143,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //find where word starts
                 while (curColumn != POOL_SIZE) {
                     y = pool.getButtonValue(curRow, curColumn);
-                    if (Objects.equals(y, " ")) {
+                    if (Objects.equals(y, " ") || Objects.equals(y, "")) {
                         ++curColumn;
                         //continue;
                     } else {
@@ -186,14 +178,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         }
                         while (ii != rowEnds);
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                        //set button style to green color
-                        try {
-                            sbmButton.setBackgroundResource(R.drawable.button_success_selector);
-                            Thread.sleep(1000);
-                            sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
-                        } catch (InterruptedException ex) {
-                            Log.d("test", "Exception caught");
-                        }
                         //delete word from dic
                         dic.removeWord(word);
                         //if one word played -raise flag
