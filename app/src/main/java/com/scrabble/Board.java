@@ -3,6 +3,7 @@ package com.scrabble;
 import java.util.Objects;
 
 public class Board {
+    private final static int[][] bonusgrid = ScrabbleTile.bonusGrid;
     int[][] masOfIDs;
     String[][] strings;
     private int POOL_SIZE;
@@ -48,10 +49,14 @@ public class Board {
 
     private void isButtonValueEmpty(int i, int j)
     {
-        emptyBoard[i][j] = Objects.equals(getButtonValue(i, j), " ");
+        emptyBoard[i][j] = Objects.equals(getButtonValue(i, j), " ") && Objects.equals(getButtonValue(i, j), "");
     }
 
     public void setButtonEmpty(int i, int j, boolean f) {
         emptyBoard[i][j] = f;
+    }
+
+    public int getBonus(int i, int j) {
+        return bonusgrid[i][j];
     }
 }

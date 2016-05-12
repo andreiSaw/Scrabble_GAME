@@ -10,14 +10,10 @@ import android.widget.RelativeLayout;
 import java.util.Objects;
 
 public class ScrabbleTile extends Button {
-    private static int size = 150;
-    private static int WIDTH = 1080, HEIGHT = 1920;
-    // 250 for 1080 is ideal
-    private static int _marginTop = 250;
-    final int ONEP = 1;
-    final int DBLP = 2;
-    final int TRPP = 3;
-    final int[][] bonusGrid = {
+    private static final int ONEP = 1;
+    private static final int DBLP = 2;
+    private static final int TRPP = 3;
+    protected static final int[][] bonusGrid = {
             {DBLP, ONEP, ONEP, ONEP, ONEP, ONEP, DBLP},
             {ONEP, DBLP, TRPP, TRPP, TRPP, DBLP, ONEP},
             {ONEP, TRPP, DBLP, ONEP, DBLP, TRPP, ONEP},
@@ -26,6 +22,10 @@ public class ScrabbleTile extends Button {
             {ONEP, DBLP, TRPP, TRPP, TRPP, DBLP, ONEP},
             {DBLP, ONEP, ONEP, ONEP, ONEP, ONEP, DBLP}
     };
+    private static int size = 150;
+    private static int WIDTH = 1080, HEIGHT = 1920;
+    // 250 for 1080 is ideal
+    private static int _marginTop = 250;
     // 150 for 1080 is ideal
     RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(size, size);
     private boolean lock = false;

@@ -50,21 +50,5 @@ public class Rack {
             }
         }
     }
-
-   /* public int getFirstEmpty() {
-        boolean f = true;
-        int i = 0;
-        while (f) {
-            if (isEmpty(i)) {
-                return i;
-            } else if (i != POOL_SIZE - 1) {
-                ++i;
-            } else {
-                return -1;
-            }
-        }
-        return -11;
-    }
-    */
 }
 

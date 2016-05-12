@@ -137,7 +137,7 @@ public class GameActivity extends AppCompatActivity {
                         }
                         while (jj != columnEnds);
 
-                        curPlayer.updateScore(getWordReward(word));
+                        curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
                         //set button style to green color
                         sbmButton.setBackgroundResource(R.drawable.button_success_selector);
                         //delete word from dic
@@ -194,7 +194,7 @@ public class GameActivity extends AppCompatActivity {
                             while (jj != columnEnds);
                         }
                         while (ii != rowEnds);
-                        curPlayer.updateScore(getWordReward(word));
+                        curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
                         //set button style to green color
                         sbmButton.setBackgroundResource(R.drawable.button_success_selector);
                         //delete word from dic
@@ -208,7 +208,9 @@ public class GameActivity extends AppCompatActivity {
             //TODO: kick out all not locked tiles
             for (int i = 0; i < POOL_SIZE; i++) {
                 for (int j = 0; j < POOL_SIZE; j++) {
-                    if (!pool.isButtonLocked(i, j) && !pool.isButtonEmpty(i, j)) {
+                    boolean f1 = pool.isButtonLocked(i, j);
+                    boolean f2 = pool.isButtonEmpty(i, j);
+                    if (!f1 && !f2) {
                         rack.pushButtonValue(pool.getButtonValue(i, j));
                     }
                 }
@@ -354,12 +356,20 @@ public class GameActivity extends AppCompatActivity {
         plrButton.setText(curPlayer.getName());
     }
 
-    private int getWordReward(String word) {
+    private int getWordReward(String word, int istarts, int jstarts, int iends, int jends) {
         addWordToStore(word);
         int score = 0;
+        boolean flag;
+        //if (jstarts == jends) {
+        flag = istarts == iends;
         while (word.length() > 0) {
             int x = word.charAt(0) - 'a';
-            score += vectorOfLettersWorth.get(x).second;
+            score += vectorOfLettersWorth.get(x).second * pool.getBonus(istarts, jstarts);
+            if (!flag) {
+                istarts++;
+            } else {
+                jstarts++;
+            }
             word = word.substring(1);
         }
         return score;
@@ -432,6 +442,8 @@ public class GameActivity extends AppCompatActivity {
             ScrabbleTile bt = new ScrabbleTile(this);
             int x = View.generateViewId();
             bt.setId(x);
+            bt.initWH();
+            bt.setMargins();
             rack.setButtonID(i, x);
             bt.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
             if (i != 0) {
@@ -503,6 +515,7 @@ public class GameActivity extends AppCompatActivity {
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
 //TODO Builder pattern
+
         pool.setButtonID(0, 0, R.id.veryFirstButton);
         pool.setButtonValue(0, 0, " ");
         pool.setButtonEmpty(0, 0, true);
@@ -516,28 +529,34 @@ public class GameActivity extends AppCompatActivity {
                 if (i != 0 && j != 0) {
                     ScrabbleTile bt = new ScrabbleTile(this);
 
+                    int x = View.generateViewId();
+
+                    bt.setId(x);
+                    bt.setText(" ");
+                    bt.loadBonuses(i, j);
                     bt.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
                     bt.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     bt.addRule(RelativeLayout.ALIGN_LEFT);
-
-                    int x = View.generateViewId();
-                    bt.setId(x);
-                    pool.setButtonID(i, j, x);
-                    bt.setText(" ");
-                    pool.setButtonValue(i, j, " ");
-
                     bt.setMargins();
-                    bt.loadBonuses(i, j);
+
+                    pool.setButtonID(i, j, x);
+                    pool.setButtonValue(i, j, " ");
+                    pool.setButtonEmpty(i, j, true);
+                    pool.setButtonLocked(i, j, false);
+
                     relativeLayout.addView(bt);
                 } else if (i == 0 && j != 0) {
                     ScrabbleTile bt = new ScrabbleTile(this);
 
                     int x = View.generateViewId();
-                    bt.setId(x);
-                    pool.setButtonID(i, j, x);
-                    bt.setText(" ");
-                    pool.setButtonValue(i, j, " ");
 
+                    pool.setButtonID(i, j, x);
+                    pool.setButtonValue(i, j, " ");
+                    pool.setButtonEmpty(i, j, true);
+                    pool.setButtonLocked(i, j, false);
+
+                    bt.setId(x);
+                    bt.setText(" ");
                     bt.addRule(RelativeLayout.RIGHT_OF, pool.getButtonID(i, j - 1));
                     bt.setMarginForTop();
                     bt.loadBonuses(i, j);
@@ -548,15 +567,18 @@ public class GameActivity extends AppCompatActivity {
                     ScrabbleTile bt = new ScrabbleTile(this);
 
                     int x = View.generateViewId();
-                    bt.setId(x);
-                    pool.setButtonID(i, j, x);
-                    bt.setText(" ");
-                    pool.setButtonValue(i, j, " ");
 
-                    bt.setMargins();
-                    bt.loadBonuses(i, j);
+                    pool.setButtonID(i, j, x);
+                    pool.setButtonValue(i, j, " ");
+                    pool.setButtonEmpty(i, j, true);
+                    pool.setButtonLocked(i, j, false);
+
+                    bt.setId(x);
+                    bt.setText(" ");
                     bt.addRule(RelativeLayout.BELOW, pool.getButtonID(i - 1, j));
                     bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+                    bt.setMargins();
+                    bt.loadBonuses(i, j);
 
                     relativeLayout.addView(bt);
                 } else {

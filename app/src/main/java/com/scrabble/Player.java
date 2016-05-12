@@ -34,7 +34,6 @@ public class Player implements Serializable {
         return getScore().toString();
     }
 
-
     public void updateScore(int addScore) {
         setScore(getScore() + addScore);
     }
