@@ -6,4 +6,5 @@
     <color name="colorLightBlueTile">#8ce6fa</color>
     <color name="colorLightPinkTile">#ff9696</color>
     <color name="colorLightGreenTile">#b0e57c</color>
+    <color name="colorForRack">#b17ce5</color>
 </resources>

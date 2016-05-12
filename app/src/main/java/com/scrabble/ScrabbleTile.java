@@ -60,7 +60,7 @@ public class ScrabbleTile extends Button {
         WIDTH = w;
         HEIGHT = h;
         //  double coef = 0.1388888888888889;
-        double coef = 0.13;
+        double coef = 0.1265;
         double marginCoef = 0.23148148148148148;
         double d = (double) WIDTH * coef;
         size = (int) d;
@@ -108,13 +108,13 @@ public class ScrabbleTile extends Button {
     }
 
     protected void setMargins() {
-        int _margin = 4;
+        int _margin = 5;
         params.setMargins(_margin, _margin, _margin, _margin);
         this.setLayoutParams(params);
     }
 
     protected void setMarginForTop() {
-        int _margin = 4;
+        int _margin = 5;
         params.setMargins(_margin, _marginTop, _margin, _margin);
         this.setLayoutParams(params);
     }

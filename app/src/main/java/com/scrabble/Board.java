@@ -49,7 +49,7 @@ public class Board {
 
     private void isButtonValueEmpty(int i, int j)
     {
-        emptyBoard[i][j] = Objects.equals(getButtonValue(i, j), " ") && Objects.equals(getButtonValue(i, j), "");
+        emptyBoard[i][j] = Objects.equals(getButtonValue(i, j), " ") || Objects.equals(getButtonValue(i, j), "");
     }
 
     public void setButtonEmpty(int i, int j, boolean f) {

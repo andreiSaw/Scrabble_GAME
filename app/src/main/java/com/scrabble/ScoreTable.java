@@ -2,12 +2,11 @@ package com.scrabble;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 
 import java.util.List;
 
-public class ScoreTable extends AppCompatActivity {
+public class ScoreTable extends MainActivity {
 
     Player player1, player2;
 
