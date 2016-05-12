@@ -104,4 +104,15 @@ public class Board {
             }
         }
     }
+
+    protected boolean isUnlockedButtonOnPool() {
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                if (!isButtonLocked(i, j) && !isButtonEmpty(i, j)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

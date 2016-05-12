@@ -34,6 +34,7 @@ public class ScrabbleTile extends Button {
     public ScrabbleTile(Context context) {
         super(context);
         //  listen();
+        this.setTextSize(20f);
         initWH();
     }
 
@@ -56,7 +57,7 @@ public class ScrabbleTile extends Button {
     }
 
     public static void setResolution(int w, int h) {
-        double x = (double) (w - 10 - 2 * 7 * _margin) / (double) 7;
+        double x = (double) (w - 2 * 2 * 5 - 2 * 7 * _margin) / (double) 7;
         size = (int) x;
         double marginCoef = 0.23148148148148148;
         double d = (double) w * marginCoef;
@@ -152,4 +153,5 @@ public class ScrabbleTile extends Button {
         //if (Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ")) {
         isEmpty = Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ");
     }
+
 }

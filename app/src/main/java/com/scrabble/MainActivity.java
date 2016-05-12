@@ -32,9 +32,6 @@ import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Vector;
@@ -44,26 +41,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final int POOL_SIZE = 7;
     protected Player curPlayer;
     private Player p1, p2;
-    private Button sbmButton, scrButton, plrButton;
+    private Button sbmButton;
     private Rack rack;
     private Dictionary dic = new Dictionary();
     private Board pool;
     private String _letterBuf = "";
     private Vector<Pair<String, Integer>> vectorOfLettersWorth;
     private Bag bag;
-    private Button.OnClickListener scrButtonListener = new Button.OnClickListener() {
 
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent(MainActivity.this, ScoreTable.class);
-            List<Player> list = new ArrayList<>();
-            list.add(p1);
-            list.add(p2);
-            //TODO: check if it works
-            intent.putExtra("Players", (Serializable) list);
-            MainActivity.this.startActivity(intent);
-        }
-    };
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -145,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             Thread.sleep(1000);
                             sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
                         } catch (InterruptedException ex) {
-                            Log.d("test", "Exception caught");
+                            Log.d("test", ex.getMessage());
                         }
                         //delete word from dic
                         dic.removeWord(word);
@@ -217,35 +202,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 word = "";
             }
-            //TODO: kick out all not locked tiles
-            /*
-            for (int i = 0; i < POOL_SIZE; i++) {
-                for (int j = 0; j < POOL_SIZE; j++) {
-                    boolean f1 = pool.isButtonLocked(i, j);
-                    boolean f2 = pool.isButtonEmpty(i, j);
-                    if (!f1 && !f2) {
-                        rack.pushButtonValue(pool.getButtonValue(i, j));
-                    }
-                }
-            }
-
-            Vector unlockedTilesList=pool.getUnclockedTiles();
-            if(!unlockedTilesList.isEmpty())
-            {
-                int i=0;
-                while(i<unlockedTilesList.size()) {
-                    ScrabbleTile bt = (ScrabbleTile) findViewById((Integer) unlockedTilesList.get(i));
-                    i++;
-                    bt
-                }
-            }
-            */
-            //TODO: shake app
             //if nor 1 one word played - turn is stays over current player
             if (!flagIfWordPlayed) {
-
+                Toast.makeText(MainActivity.this, R.string.StringForToast_submit, Toast.LENGTH_SHORT).show();
             } else {
+                while (pool.isUnlockedButtonOnPool()) {
+                    Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
+                }
                 changeCurrentPlayer();
+                Toast.makeText(MainActivity.this, String.format("Now is %s's turn", curPlayer.getName()), Toast.LENGTH_SHORT).show();
             }
             fillRack();//ask new word from trie to rack
         }
@@ -292,10 +257,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         loadDataWithScanner();
         loadRack();
         fisrtFillingRack();
-        loadAllButtons();
+        loadSubmitButton();
         loadDistribution();
         loadListeners();
-
     }
 
     @Override
@@ -329,12 +293,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         new PrimaryDrawerItem().withName(p1.getName()).withIcon(FontAwesome.Icon.faw_android).withIdentifier(1).withBadge(p1.getScoreToString()),
                         new PrimaryDrawerItem().withName(p2.getName()).withIcon(FontAwesome.Icon.faw_android).withIdentifier(2).withBadge(p2.getScoreToString()),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_question),//create action
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_contact).withIcon(FontAwesome.Icon.faw_paper_plane).withBadge("12+").withIdentifier(1)).withOnDrawerListener(new Drawer.OnDrawerListener() {
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_share).withIcon(FontAwesome.Icon.faw_paper_plane)).withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
                     public void onDrawerOpened(View drawerView) {
                         // Скрываем клавиатуру при открытии Navigation Drawer
-                        InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                        inputMethodManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), 0);
+                        try {
+                            InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                            inputMethodManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), 0);
+                        } catch (NullPointerException exception) {
+                            Log.d("test", exception.getMessage());
+                        }
                     }
 
                     @Override
@@ -363,6 +331,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                     intent = new Intent(MainActivity.this, InfoTab.class);
                                     MainActivity.this.startActivity(intent);
                                     break;
+                                case "Share":
+                                    Intent share = new Intent(android.content.Intent.ACTION_SEND);
+                                    share.setType("text/plain");
+                                    share.putExtra(Intent.EXTRA_TEXT, "I'm already using Scrabble Game. Try yourself: vk.com");
+                                    startActivity(Intent.createChooser(share, "Share post"));
+                                    break;
                                 default:
                                     break;
                             }
@@ -372,8 +346,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .build();
         DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerListener(mDrawerListenernew);
-        //// TODO: onclick draw
-
     }
 
     @Override
@@ -415,19 +387,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         ScrabbleTile.setResolution(width, height);
     }
 
-    private void loadAllButtons() {
-        loadSubmitButton();
-        loadScoreButton();
-        loadPlayerButton();
-    }
-
     private void loadSubmitButton() {
         int _margin = 1;
         sbmButton = new Button(this);
         sbmButton.setText("S U B M I T");
         sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE - 1));
         params.setMargins(_margin, _margin, _margin, _margin);
@@ -435,38 +401,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sbmButton.setId(View.generateViewId());
         relativeLayout.addView(sbmButton);
         sbmButton.setOnClickListener(submitButtonListener);
-    }
-
-    private void loadScoreButton() {
-        int _margin = 1;
-        scrButton = new Button(this);
-        scrButton.setText("S C O R E");
-        scrButton.setBackgroundResource(R.drawable.button_orange_opacity);
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(_margin, _margin, _margin, _margin);
-        params.addRule(RelativeLayout.LEFT_OF, sbmButton.getId());
-        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE / 2));
-        scrButton.setLayoutParams(params);
-        scrButton.setId(View.generateViewId());
-        relativeLayout.addView(scrButton);
-        scrButton.setOnClickListener(scrButtonListener);
-    }
-
-    private void loadPlayerButton() {
-        int _margin = 1;
-        plrButton = new Button(this);
-        plrButton.setText(curPlayer.getName());
-        plrButton.setBackgroundResource(R.drawable.button_info_selector);
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        params.addRule(RelativeLayout.LEFT_OF, scrButton.getId());
-        params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        params.addRule(RelativeLayout.ABOVE, rack.getButtonID(0));
-        params.setMargins(_margin, _margin, _margin, _margin);
-        plrButton.setLayoutParams(params);
-        plrButton.setId(View.generateViewId());
-        relativeLayout.addView(plrButton);
     }
 
     private void loadPlayers() {
@@ -487,7 +421,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             curPlayer = p1;
         }
-        plrButton.setText(curPlayer.getName());
     }
 
     private int getWordReward(String word, int istarts, int jstarts, int iends, int jends) {
@@ -595,7 +528,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 bt.addRule(RelativeLayout.RIGHT_OF, rack.getButtonID(i - 1));
             }
             relativeLayout.addView(bt);
-
         }
 
     }
@@ -633,7 +565,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void fisrtFillingRack() {
-        String d = dic.getRequiredSize(7);
+        //String d = dic.getRequiredSize(7);
+        String d = "firefox";
         fillRack(d);
     }
 
@@ -651,7 +584,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 //razmetka stranicy
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
-                // RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(150, 150);
                 if (i != 0 && j != 0) {
                     ScrabbleTile bt = new ScrabbleTile(this);
 
@@ -724,7 +656,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void addWordToStore(String word) {
         curPlayer.addPlayedWord(word);
-        //playedWords.add(word);
     }
 
     private void loadDataWithScanner() {
@@ -781,9 +712,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             ++i;
                         }
                     }
-
                 }
-
                 last_x = x;
                 last_y = y;
                 last_z = z;
