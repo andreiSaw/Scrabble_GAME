@@ -66,6 +66,10 @@ public class ScrabbleTile extends Button {
     }
 
     public void loadBonuses(int i, int j) {
+        if (i == j && j == 3) {
+            this.setBackgroundResource(R.color.colorForMiddle);
+            return;
+        }
         int x = bonusGrid[i][j];
         switch (x) {
             case ONEP:

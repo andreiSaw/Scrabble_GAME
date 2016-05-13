@@ -3,14 +3,16 @@
     package="com.scrabble"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <application
         android:allowBackup="true"
         android:fullBackupContent="true"
-        android:icon="@drawable/test3"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <uses-permission android:name="android.permission.VIBRATE"/>
+
+
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
@@ -24,7 +26,9 @@
             android:name=".InfoTab"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name=".RecyclerViewActivity"
+            android:screenOrientation="portrait"/>
     </application>
-
 
 </manifest>

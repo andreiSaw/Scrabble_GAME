@@ -4,19 +4,30 @@ import java.util.Objects;
 import java.util.Vector;
 
 public class Board {
+    /*
+    builder pattern https://habrahabr.ru/post/244521/
+     */
     private final static int[][] bonusgrid = ScrabbleTile.bonusGrid;
     int[][] masOfIDs;
-    String[][] strings;
+    String[][] valueBoard;
     private int POOL_SIZE;
     private boolean[][] lockedBoard;
     private boolean[][] emptyBoard;
 
+    private Board() {
+        // private constructor
+    }
+
     public Board(int size) {
         POOL_SIZE = size;
         masOfIDs = new int[POOL_SIZE][POOL_SIZE];
-        strings = new String[POOL_SIZE][POOL_SIZE];
+        valueBoard = new String[POOL_SIZE][POOL_SIZE];
         lockedBoard = new boolean[POOL_SIZE][POOL_SIZE];
         emptyBoard = new boolean[POOL_SIZE][POOL_SIZE];
+    }
+
+    public static Builder newBuilder() {
+        return new Board().new Builder();
     }
 
     public int getButtonID(int i, int j) {
@@ -24,11 +35,11 @@ public class Board {
     }
 
     public String getButtonValue(int i, int j) {
-        return strings[i][j];
+        return valueBoard[i][j];
     }
 
     public void setButtonValue(int i, int j, String val) {
-        strings[i][j] = val;
+        valueBoard[i][j] = val;
     }
 
     public void setButtonID(int i, int j, int val) {
@@ -72,33 +83,11 @@ public class Board {
         return myVector;
     }
 
-    protected void setButtonEmptyById(int id, boolean flag) {
-        for (int i = 0; i < POOL_SIZE; ++i) {
-            for (int j = 0; j < POOL_SIZE; ++j) {
-                if (id == masOfIDs[i][j]) {
-                    setButtonEmpty(i, j, flag);
-                    return;
-                }
-            }
-        }
-    }
-
-    protected void setButtonLockedById(int id, boolean flag) {
-        for (int i = 0; i < POOL_SIZE; ++i) {
-            for (int j = 0; j < POOL_SIZE; ++j) {
-                if (id == masOfIDs[i][j]) {
-                    setButtonLocked(i, j, flag);
-                    return;
-                }
-            }
-        }
-    }
-
     protected void setButtonValueById(int id, String val) {
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
                 if (getButtonID(i, j) == id) {
-                    strings[i][j] = val;
+                    valueBoard[i][j] = val;
                     return;
                 }
             }
@@ -114,5 +103,35 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public class Builder {
+        private Builder() {
+            // private constructor
+        }
+
+        public Builder setButtonEmpty(int i, int j, boolean f) {
+            Board.this.emptyBoard[i][j] = f;
+            return this;
+        }
+
+        public Board build() {
+            return Board.this;
+        }
+
+        public Builder setButtonValue(int i, int j, String val) {
+            Board.this.valueBoard[i][j] = val;
+            return this;
+        }
+
+        public Builder setButtonLocked(int i, int j, boolean f) {
+            Board.this.lockedBoard[i][j] = f;
+            return this;
+        }
+
+        public Builder setButtonId(int i, int j, int id) {
+            Board.this.masOfIDs[i][j] = id;
+            return this;
+        }
     }
 }

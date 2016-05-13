@@ -25,6 +25,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mikepenz.iconics.typeface.FontAwesome;
@@ -44,7 +45,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final int POOL_SIZE = 7;
     protected Player curPlayer;
     private Player p1, p2;
-    private Button sbmButton;
     private Rack rack;
     private Dictionary dic = new Dictionary();
     private Board pool;
@@ -56,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         @Override
         public void onClick(View v) {
+            if (pool.isButtonEmpty(POOL_SIZE / 2, POOL_SIZE / 2)) {
+                Toast.makeText(MainActivity.this, R.string.StringForMiddle, Toast.LENGTH_SHORT).show();
+                return;
+            }
             boolean flagIfWordPlayed = false;
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             ScrabbleTile x;
@@ -82,16 +86,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
 
             if (rows.isEmpty() && cols.isEmpty()) {
+
                 return;
             }
             //TODO: anchors to prevent long time
-
+//TODO нормальный алгоритм слова с конца переветрыши
             //TODO: SIMPLIFY
             //look over each column
             // downward
             for (int i : cols) {
                 curColumn = i;
-                curRow = rows.get(0);
+                curRow = 0;
                 y = pool.getButtonValue(curRow, curColumn);
                 //find where word starts
                 while (curRow != POOL_SIZE) {
@@ -128,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             pool.setButtonLocked(ii, curColumn, true);
                         }
                         while (ii != rowEnds);
-
+                        dic.removeWord(word);
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
                         curPlayer.emptyPLAYER_SKIPPED();
                         //if one word played -raise flag
@@ -140,7 +145,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //look over each row
             //rightward
-
             for (int i : rows) {
                 curRow = i;
                 curColumn = 0;
@@ -179,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             pool.setButtonLocked(curRow, jj, true);
                         }
                         while (jj != columnEnds);
-
+                        dic.removeWord(word);
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
                         curPlayer.emptyPLAYER_SKIPPED();
                         //if one word played -raise flag
@@ -187,10 +191,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                 }
                 word = "";
-            }
+            }//for i
+
             //if nor 1 one word played - turn is stays over current player
             if (!flagIfWordPlayed) {
-                Toast.makeText(MainActivity.this, R.string.StringForToast_submit, Toast.LENGTH_SHORT).show();
+                SubmitToasting();
             } else {
                 if (pool.isUnlockedButtonOnPool()) {
                     Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
@@ -239,12 +244,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else if (str.contains(p2.getName())) {
                     str = p2.toString();
                 }
-                if (!Objects.equals(str, "Pass")) {
+                if (!Objects.equals(str, "Pass") && !Objects.equals(str, "Change rack")) {
                     Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
                 }
                 Intent intent;
                 switch (str) {
                     case "Help":
+                        //TODO нормальный активити
                         intent = new Intent(MainActivity.this, InfoTab.class);
                         MainActivity.this.startActivity(intent);
                         break;
@@ -272,8 +278,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         break;
                     case "Change rack":
                         bag.pushLetters(rack.toString());
-                        rack.emptyRack();
-                        forcedFillRack();
+                        if (pool.isUnlockedButtonOnPool()) {
+                            ShakeToasting();
+                        } else {
+                            rack.emptyRack();
+                            forcedFillRack();
+                            Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    case "Played words":
+                        Intent intent1 = new Intent(MainActivity.this, RecyclerViewActivity.class);
+                        intent1.putExtra("Player", curPlayer);
+                        MainActivity.this.startActivity(intent1);
+                        break;
                     default:
                         break;
                 }
@@ -284,7 +301,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_game);
+        setContentView(R.layout.activity_main);
 
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -301,6 +318,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void ShakeToasting() {
         Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
+    }
+
+    private void SubmitToasting() {
+        Toast.makeText(MainActivity.this, R.string.StringForToast_submit, Toast.LENGTH_SHORT).show();
     }
 
     private void newGame() {
@@ -330,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         https://habrahabr.ru/post/250765/
          */
 
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // enable ActionBar app icon to behave as action to toggle nav drawer
@@ -346,7 +368,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         new PrimaryDrawerItem().withName("New Game").withIcon(FontAwesome.Icon.faw_play_circle).withIdentifier(3),
                         new PrimaryDrawerItem().withName("Pass").withIcon(FontAwesome.Icon.faw_arrow_circle_o_right),
                         new PrimaryDrawerItem().withName("Change rack").withIcon(FontAwesome.Icon.faw_arrow_circle_o_down),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_question),//create action
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_question),
+                        new PrimaryDrawerItem().withName("Played words").withIcon(FontAwesome.Icon.faw_file_text),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_share).withIcon(FontAwesome.Icon.faw_paper_plane)).withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
                     public void onDrawerOpened(View drawerView) {
@@ -411,9 +434,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void loadSubmitButton() {
         int _margin = 1;
-        sbmButton = new Button(this);
+        //TODO нормальная кнопка
+        Button sbmButton = new Button(this);
         sbmButton.setText("S U B M I T");
-        sbmButton.setBackgroundResource(R.drawable.button_primary_selector);
+        sbmButton.setBackgroundResource(R.color.colorForMiddle);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
@@ -423,8 +447,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         params.setMargins(_margin, _margin, _margin, _margin);
         sbmButton.setLayoutParams(params);
         sbmButton.setId(View.generateViewId());
-        relativeLayout.addView(sbmButton);
+
         sbmButton.setOnClickListener(submitButtonListener);
+
+        relativeLayout.addView(sbmButton);
     }
 
     private void loadPlayers() {
@@ -446,6 +472,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             curPlayer = p1;
         }
         Toast.makeText(MainActivity.this, String.format("Now is %s's turn", curPlayer.getName()), Toast.LENGTH_SHORT).show();
+        TextView tv = (TextView) findViewById(R.id.playerTextView);
+        tv.setText(curPlayer.getName());
     }
 
     private int getWordReward(String word, int istarts, int jstarts, int iends, int jends) {
@@ -593,7 +621,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Congratulations!")
                 .setMessage(s)
-                .setIcon(R.drawable.win_large)
                 .setCancelable(false)
                 .setNegativeButton("OK",
                         new DialogInterface.OnClickListener() {
@@ -611,12 +638,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         for (int i = 0; i < POOL_SIZE; ++i) {
             id = rack.getButtonID(i);
             ScrabbleTile btn = (ScrabbleTile) findViewById(id);
-            if (btn.isEmpty()) {
-                String string = "" + text.charAt(0);
-                btn.setText(string);
-                rack.setButtonValue(i, string);
-                text = text.substring(1);
-            }
+            String string = "" + text.charAt(0);
+            btn.setText(string);
+            rack.setButtonValue(i, string);
+            text = text.substring(1);
         }
     }
 
@@ -635,7 +660,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void fisrtFillingRack() {
-        //String d = dic.getRequiredSize(7);
+        // String d = dic.getRequiredSize(7);
         String d = "firefox";
         fillRack(d);
     }
@@ -643,13 +668,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void loadTable() {
 
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
-//TODO Builder pattern
 
         pool.setButtonID(0, 0, R.id.veryFirstButton);
         pool.setButtonValue(0, 0, " ");
         pool.setButtonEmpty(0, 0, true);
         pool.setButtonLocked(0, 0, false);
-
 
 //razmetka stranicy
         for (int i = 0; i < POOL_SIZE; ++i) {
@@ -738,7 +761,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     .replaceAll("'", "");
             String[] words = nextline.split(" ");
             for (String word : words) {
-                //  trie.addWord(word);
                 dic.addWord(word);
             }
         }
@@ -765,7 +787,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     if (!unlockedTilesVector.isEmpty()) {
                         unlockedTilesToRack();
                     }
-                    vibrate(2);
+                    //Например, включить виброрежим на одну секунду
+                    long mills = 400L;
+                    vibrate(mills);
                 }
                 last_x = x;
                 last_y = y;
@@ -779,7 +803,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
-    public void vibrate(int duration) {
+    public void vibrate(long duration) {
         Vibrator vibs = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibs.vibrate(duration);
     }
@@ -805,10 +829,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 ++i;
             }
         }
-    }
-
-    private boolean isUlockedTilesOnPool() {
-        return !pool.getUnclockedTiles().isEmpty();
     }
 }
 

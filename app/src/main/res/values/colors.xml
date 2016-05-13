@@ -7,4 +7,5 @@
     <color name="colorLightPinkTile">#ff9696</color>
     <color name="colorLightGreenTile">#b0e57c</color>
     <color name="colorForRack">#b17ce5</color>
+    <color name="colorForMiddle">#d82f89</color>
 </resources>
