@@ -64,5 +64,17 @@ public class Rack {
         }
         return "";
     }
+
+    public String toString() {
+        String s = "";
+        for (String c : values) {
+            s += c;
+        }
+        return s;
+    }
+
+    public void emptyRack() {
+        values = new String[POOL_SIZE];
+    }
 }
 

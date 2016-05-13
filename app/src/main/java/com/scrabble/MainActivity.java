@@ -2,6 +2,7 @@ package com.scrabble;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.hardware.Sensor;
@@ -9,7 +10,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -77,13 +80,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     }
                 }
             }
+
+            if (rows.isEmpty() && cols.isEmpty()) {
+                return;
+            }
             //TODO: anchors to prevent long time
+
             //TODO: SIMPLIFY
             //look over each column
             // downward
             for (int i : cols) {
                 curColumn = i;
-                curRow = 0;
+                curRow = rows.get(0);
                 y = pool.getButtonValue(curRow, curColumn);
                 //find where word starts
                 while (curRow != POOL_SIZE) {
@@ -95,7 +103,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         rowStarts = curRow;
                         break;
                     }
-                }
+                }//while
+
                 //find where word ends
                 while (!Objects.equals(y, " ") && curRow != POOL_SIZE) {
                     word += y;
@@ -104,34 +113,30 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         break;
                     }
                     y = pool.getButtonValue(curRow, curColumn);
-                }
+                }//while
                 rowEnds = curRow - 1;
 
                 //checking
                 if (word.length() > 1) {
                     if (dic.isValidWord(word)) {
-                        int ii = rowStarts - 1, jj = columnStarts - 1;
+                        int ii = rowStarts - 1;
+
                         do {
-                            ++jj;
-                            do {
-                                ++ii;
-                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, jj));
-                                x.setLocked(true);
-                                pool.setButtonLocked(ii, jj, true);
-                            }
-                            while (ii != rowEnds);
+                            ++ii;
+                            x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
+                            x.setLocked(true);
+                            pool.setButtonLocked(ii, curColumn, true);
                         }
-                        while (jj != columnEnds);
+                        while (ii != rowEnds);
 
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                        //delete word from dic
-                        dic.removeWord(word);
+                        curPlayer.emptyPLAYER_SKIPPED();
                         //if one word played -raise flag
                         flagIfWordPlayed = true;
                     }
                 }
                 word = "";
-            }
+            }//for i
 
             //look over each row
             //rightward
@@ -165,21 +170,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 //checking
                 if (word.length() > 1) {
                     if (dic.isValidWord(word)) {
-                        int ii = rowStarts - 1, jj = columnStarts - 1;
+                        int jj = columnStarts - 1;
+
                         do {
-                            ++ii;
-                            do {
-                                ++jj;
-                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, jj));
-                                x.setLocked(true);
-                                pool.setButtonLocked(ii, jj, true);
-                            }
-                            while (jj != columnEnds);
+                            ++jj;
+                            x = (ScrabbleTile) findViewById(pool.getButtonID(curRow, jj));
+                            x.setLocked(true);
+                            pool.setButtonLocked(curRow, jj, true);
                         }
-                        while (ii != rowEnds);
+                        while (jj != columnEnds);
+
                         curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                        //delete word from dic
-                        dic.removeWord(word);
+                        curPlayer.emptyPLAYER_SKIPPED();
                         //if one word played -raise flag
                         flagIfWordPlayed = true;
                     }
@@ -190,13 +192,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             if (!flagIfWordPlayed) {
                 Toast.makeText(MainActivity.this, R.string.StringForToast_submit, Toast.LENGTH_SHORT).show();
             } else {
-                while (pool.isUnlockedButtonOnPool()) {
+                if (pool.isUnlockedButtonOnPool()) {
                     Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
+                } else {
+                    changeCurrentPlayer();
+                    fillRack();//ask new word to rack
                 }
-                changeCurrentPlayer();
-                Toast.makeText(MainActivity.this, String.format("Now is %s's turn", curPlayer.getName()), Toast.LENGTH_SHORT).show();
             }
-            fillRack();//ask new word from trie to rack
         }
     };
     private Drawer.Result drawerResult = null;
@@ -223,6 +225,61 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor senAccelerometer;
     private long lastUpdate = 0;
     private float last_x, last_y, last_z;
+    private Drawer.OnDrawerItemClickListener drawerItemClickListener = new Drawer.OnDrawerItemClickListener() {
+        @Override
+        // Обработка клика
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id, IDrawerItem drawerItem) {
+            if (drawerItem instanceof Nameable) {
+                String str = ((Nameable) drawerItem).getName();
+                if (str == null) {
+                    str = MainActivity.this.getString(((Nameable) drawerItem).getNameRes());
+                }
+                if (str.contains(p1.getName())) {
+                    str = p1.toString();
+                } else if (str.contains(p2.getName())) {
+                    str = p2.toString();
+                }
+                if (!Objects.equals(str, "Pass")) {
+                    Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
+                }
+                Intent intent;
+                switch (str) {
+                    case "Help":
+                        intent = new Intent(MainActivity.this, InfoTab.class);
+                        MainActivity.this.startActivity(intent);
+                        break;
+                    case "Share":
+                        Intent share = new Intent(android.content.Intent.ACTION_SEND);
+                        share.setType("text/plain");
+                        share.putExtra(Intent.EXTRA_TEXT, "I'm already using Scrabble Game. Try yourself: vk.com");
+                        startActivity(Intent.createChooser(share, "Share post"));
+                        break;
+                    case "New Game":
+                        newGame();
+                        break;
+                    case "Pass":
+                        if (pool.isUnlockedButtonOnPool()) {
+                            ShakeToasting();
+                        } else {
+                            if (curPlayer.getPLAYER_SKIPPED() == 1) {
+                                showDialog();
+                                newGame();
+                            } else {
+                                curPlayer.increment_PLAYER_SKIPPED();
+                                changeCurrentPlayer();
+                            }
+                        }
+                        break;
+                    case "Change rack":
+                        bag.pushLetters(rack.toString());
+                        rack.emptyRack();
+                        forcedFillRack();
+                    default:
+                        break;
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -233,16 +290,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
+        loadGameResolution();
+        loadDataWithScanner();
+        loadDistribution();
+
+        newGame();
+
+        loadSubmitButton();
+    }
+
+    private void ShakeToasting() {
+        Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
+    }
+
+    private void newGame() {
         loadPlayers();
         loadNavD();
-        loadGameResolution();
         loadPool();
         loadTable();
-        loadDataWithScanner();
         loadRack();
         fisrtFillingRack();
-        loadSubmitButton();
-        loadDistribution();
         loadListeners();
     }
 
@@ -276,6 +343,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(p1.getName()).withIcon(FontAwesome.Icon.faw_android).withIdentifier(1).withBadge(p1.getScoreToString()),
                         new PrimaryDrawerItem().withName(p2.getName()).withIcon(FontAwesome.Icon.faw_android).withIdentifier(2).withBadge(p2.getScoreToString()),
+                        new PrimaryDrawerItem().withName("New Game").withIcon(FontAwesome.Icon.faw_play_circle).withIdentifier(3),
+                        new PrimaryDrawerItem().withName("Pass").withIcon(FontAwesome.Icon.faw_arrow_circle_o_right),
+                        new PrimaryDrawerItem().withName("Change rack").withIcon(FontAwesome.Icon.faw_arrow_circle_o_down),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_question),//create action
                         new PrimaryDrawerItem().withName(R.string.drawer_item_share).withIcon(FontAwesome.Icon.faw_paper_plane)).withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
@@ -293,41 +363,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     public void onDrawerClosed(View drawerView) {
                     }
                 })
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    // Обработка клика
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id, IDrawerItem drawerItem) {
-                        if (drawerItem instanceof Nameable) {
-                            String str = ((Nameable) drawerItem).getName();
-                            if (str == null) {
-                                str = MainActivity.this.getString(((Nameable) drawerItem).getNameRes());
-                            }
-                            if (str.contains(p1.getName())) {
-                                str += String.format(" has %d points", p1.getScore());
-
-                            } else if (str.contains(p2.getName())) {
-                                str += String.format(" has %d points", p2.getScore());
-                            }
-                            Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
-                            Intent intent;
-                            switch (str) {
-                                case "Help":
-                                    intent = new Intent(MainActivity.this, InfoTab.class);
-                                    MainActivity.this.startActivity(intent);
-                                    break;
-                                case "Share":
-                                    Intent share = new Intent(android.content.Intent.ACTION_SEND);
-                                    share.setType("text/plain");
-                                    share.putExtra(Intent.EXTRA_TEXT, "I'm already using Scrabble Game. Try yourself: vk.com");
-                                    startActivity(Intent.createChooser(share, "Share post"));
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                    }
-                })
+                .withOnDrawerItemClickListener(drawerItemClickListener)
                 .build();
+
         DrawerLayout mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerLayout.setDrawerListener(mDrawerListenernew);
     }
@@ -380,6 +418,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         params.addRule(RelativeLayout.ABOVE, rack.getButtonID(POOL_SIZE - 1));
+        params.addRule(RelativeLayout.BELOW, pool.getButtonID(POOL_SIZE - 1, POOL_SIZE - 1));
+        params.addRule(RelativeLayout.CENTER_IN_PARENT);
         params.setMargins(_margin, _margin, _margin, _margin);
         sbmButton.setLayoutParams(params);
         sbmButton.setId(View.generateViewId());
@@ -405,13 +445,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             curPlayer = p1;
         }
+        Toast.makeText(MainActivity.this, String.format("Now is %s's turn", curPlayer.getName()), Toast.LENGTH_SHORT).show();
     }
 
     private int getWordReward(String word, int istarts, int jstarts, int iends, int jends) {
         addWordToStore(word);
         int score = 0;
         boolean flag;
-        //if (jstarts == jends) {
         flag = istarts == iends;
         while (word.length() > 0) {
             int x = word.charAt(0) - 'a';
@@ -513,7 +553,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             relativeLayout.addView(bt);
         }
-
     }
 
     private int countRack() {
@@ -528,10 +567,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return count;
     }
 
+
     private void fillRack() {
-        String letters = bag.getLettersToString(countRack());
-        fillRack(letters);
-        //simplify
+        if (bag.getCount() > 0) {
+            String letters = bag.getLettersToString(countRack());
+            fillRack(letters);
+            //simplify
+        } else {
+            showDialog();
+        }
+    }
+
+    private void showDialog() {
+        /*
+        http://developer.alexanderklimov.ru/android/alertdialog.php
+         */
+        String s;
+        if (p1.getScore() > p2.getScore()) {
+            s = p1.toString();
+        } else if (p2.getScore() > p1.getScore()) {
+            s = p2.toString();
+        } else {
+            s = p1.toString() + " and " + p2.toString();
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Congratulations!")
+                .setMessage(s)
+                .setIcon(R.drawable.win_large)
+                .setCancelable(false)
+                .setNegativeButton("OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void forcedFillRack() {
+        int id;
+        String text = bag.getLettersToString(POOL_SIZE);
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            id = rack.getButtonID(i);
+            ScrabbleTile btn = (ScrabbleTile) findViewById(id);
+            if (btn.isEmpty()) {
+                String string = "" + text.charAt(0);
+                btn.setText(string);
+                rack.setButtonValue(i, string);
+                text = text.substring(1);
+            }
+        }
     }
 
     private void fillRack(String text) {
@@ -677,25 +763,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (speed > SHAKE_THRESHOLD) {
                     Vector unlockedTilesVector = pool.getUnclockedTiles();
                     if (!unlockedTilesVector.isEmpty()) {
-                        int i = 0;
-                        while (i < unlockedTilesVector.size()) {
-                            ScrabbleTile scrabbleTile = (ScrabbleTile) findViewById((Integer) unlockedTilesVector.get(i));
-                            String _letterBuf;
-                            _letterBuf = "" + scrabbleTile.getText();
-                            scrabbleTile.setEmpty(true);
-                            scrabbleTile.setText(" ");
-                            pool.setButtonValueById(scrabbleTile.getId(), " ");
-                            Vector unlockedTiles = rack.pushButtonValue(_letterBuf);
-                            int j = 0;
-                            while (j < unlockedTiles.size()) {
-                                ScrabbleTile scrabbleTile1 = (ScrabbleTile) findViewById((Integer) unlockedTiles.get(j));
-                                scrabbleTile1.setText(rack.getButtonValueById(scrabbleTile1.getId()));
-
-                                ++j;
-                            }
-                            ++i;
-                        }
+                        unlockedTilesToRack();
                     }
+                    vibrate(2);
                 }
                 last_x = x;
                 last_y = y;
@@ -707,6 +777,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    public void vibrate(int duration) {
+        Vibrator vibs = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibs.vibrate(duration);
+    }
+
+    private void unlockedTilesToRack() {
+        Vector unlockedTilesVector = pool.getUnclockedTiles();
+        if (!unlockedTilesVector.isEmpty()) {
+            int i = 0;
+            while (i < unlockedTilesVector.size()) {
+                ScrabbleTile scrabbleTile = (ScrabbleTile) findViewById((Integer) unlockedTilesVector.get(i));
+                String _letterBuf;
+                _letterBuf = "" + scrabbleTile.getText();
+                scrabbleTile.setEmpty(true);
+                scrabbleTile.setText(" ");
+                pool.setButtonValueById(scrabbleTile.getId(), " ");
+                Vector unlockedTiles = rack.pushButtonValue(_letterBuf);
+                int j = 0;
+                while (j < unlockedTiles.size()) {
+                    ScrabbleTile scrabbleTile1 = (ScrabbleTile) findViewById((Integer) unlockedTiles.get(j));
+                    scrabbleTile1.setText(rack.getButtonValueById(scrabbleTile1.getId()));
+                    ++j;
+                }
+                ++i;
+            }
+        }
+    }
+
+    private boolean isUlockedTilesOnPool() {
+        return !pool.getUnclockedTiles().isEmpty();
     }
 }
 

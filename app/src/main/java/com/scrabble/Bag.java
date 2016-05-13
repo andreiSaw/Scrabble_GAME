@@ -36,6 +36,8 @@ public class Bag {
                     "X" +
                     "YY" +
                     "Z";
+    private int count = -1;
+    private List<String> list;
 
     public Bag() {
         list = new ArrayList<>();
@@ -48,22 +50,19 @@ public class Bag {
         }
     }
 
-    private int count = -1;
-
-    private List<String> list;
-
     public String getLettersToString(int count) {
-       // List<String> retList = new ArrayList<>();
-        String retString="";
+        String retString = "";
+        int n = count;
+        if (count > getCount()) {
+            n = getCount();
+        }
         Random rnd = new Random();
-        for (int i = 0; i < count; ++i) {
+        for (int i = 0; i < n; ++i) {
             int x = rnd.nextInt(getCount());
-            //retList.add(list.get(x));
-            retString+=list.get(x);
+            retString += list.get(x);
             list.remove(x);
         }
         return retString;
-       // return retList;
     }
 
     public int getCount() {
@@ -73,6 +72,14 @@ public class Bag {
 
     private void makeCount() {
         count = list.size();
+    }
+
+    protected void pushLetters(String letters) {
+        while (letters.length() > 0) {
+            String x = "" + letters.charAt(0);
+            list.add(x);
+            letters = letters.substring(1);
+        }
     }
 
 }

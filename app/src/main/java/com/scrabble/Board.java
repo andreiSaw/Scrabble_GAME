@@ -72,7 +72,7 @@ public class Board {
         return myVector;
     }
 
-    protected void setButtonEmpty(int id, boolean flag) {
+    protected void setButtonEmptyById(int id, boolean flag) {
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
                 if (id == masOfIDs[i][j]) {
@@ -83,7 +83,7 @@ public class Board {
         }
     }
 
-    protected void setButtonLocked(int id, boolean flag) {
+    protected void setButtonLockedById(int id, boolean flag) {
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
                 if (id == masOfIDs[i][j]) {

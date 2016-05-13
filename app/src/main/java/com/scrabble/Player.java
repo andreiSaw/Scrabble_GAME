@@ -8,6 +8,7 @@ public class Player implements Serializable {
     private String name = "Player";
     private int score = 0;
     private List<String> playedWords;
+    private int PLAYER_SKIPPED = 0;
 
     public Player(String name) {
         setName(name);
@@ -39,7 +40,7 @@ public class Player implements Serializable {
     }
 
     public String toString() {
-        return getName() + " " + getScore();
+        return String.format("%s has %d points", getName(), getScore());
     }
 
     public void addPlayedWord(String word) {
@@ -50,4 +51,15 @@ public class Player implements Serializable {
         return playedWords;
     }
 
+    public int getPLAYER_SKIPPED() {
+        return PLAYER_SKIPPED;
+    }
+
+    public void increment_PLAYER_SKIPPED() {
+        this.PLAYER_SKIPPED++;
+    }
+
+    public void emptyPLAYER_SKIPPED() {
+        this.PLAYER_SKIPPED = 0;
+    }
 }
