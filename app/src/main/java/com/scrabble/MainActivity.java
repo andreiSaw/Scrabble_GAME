@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private String _letterBuf = "";
     private Vector<Pair<String, Integer>> vectorOfLettersWorth;
     private engBag engBag;
-    private rusBag rusBag;
     private Drawer.Result drawerResult = null;
     private DrawerLayout.DrawerListener mDrawerListenernew = new DrawerLayout.DrawerListener() {
         @Override
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         } else {
                             if (curPlayer.getPLAYER_SKIPPED() == 1) {
                                 showDialog();
-                                newGame();
+                                reloadGame();
                             } else {
                                 curPlayer.increment_PLAYER_SKIPPED();
                                 changeCurrentPlayer();
@@ -146,7 +145,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
-    private char firstLetterInAlphabet = 'а';
+    private char firstLetterInAlphabet = 'a';
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -186,134 +185,129 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
             //TODO: anchors to prevent long time
             //TODO: SIMPLIFY
-            //look over each column
-            // downward
-            boolean bigFlagRowEnds = false;
-            curRow = 0;
+
+
             for (int i : cols) {
-                while (!bigFlagRowEnds) {
-                    columnEnds = 0;
-                    columnStarts = 0;
-                    rowEnds = 0;
-                    rowStarts = 0;
-                    curColumn = i;
+                //look over each column
+                // downward
+
+                curRow = 0;
+                curColumn = i;
+
+                columnEnds = 0;
+                columnStarts = 0;
+                rowEnds = 0;
+                rowStarts = 0;
+
+                y = pool.getButtonValue(curRow, curColumn);
+                //find where word starts
+                while (curRow != POOL_SIZE) {
                     y = pool.getButtonValue(curRow, curColumn);
-                    //find where word starts
-                    while (curRow != POOL_SIZE) {
-                        y = pool.getButtonValue(curRow, curColumn);
-                        if (Objects.equals(y, " ") || Objects.equals(y, "")) {
-                            ++curRow;
-                            //continue;
-                        } else {
-                            rowStarts = curRow;
-                            break;
-                        }
-                    }//while
-                    //мы искали начало слова а пришли в конец
-                    if (curRow == POOL_SIZE) {
-                        bigFlagRowEnds = true;
+                    if (Objects.equals(y, " ") || Objects.equals(y, "")) {
+                        ++curRow;
+                        //continue;
+                    } else {
+                        rowStarts = curRow;
                         break;
                     }
+                }//while
 
-                    //find where word ends
-                    while (!Objects.equals(y, " ") && curRow != POOL_SIZE) {
-                        word += y;
-                        ++curRow;
-                        if (curRow == POOL_SIZE) {
-                            bigFlagRowEnds = true;
-                            break;
-                        }
-                        y = pool.getButtonValue(curRow, curColumn);
-                    }//while
-                    rowEnds = curRow - 1;
-
-                    //checking
-                    if (word.length() > 1) {
-                        if (dic.isValidWord(word)) {
-                            int ii = rowStarts - 1;
-
-                            do {
-                                ++ii;
-                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
-                                x.setLocked(true);
-                                pool.setButtonLocked(ii, curColumn, true);
-                            }
-                            while (ii != rowEnds);
-                            dic.removeWord(word);
-                            curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                            curPlayer.emptyPLAYER_SKIPPED();
-                            //if one word played -raise flag
-                            flagIfWordPlayed = true;
-                        }
+                //find where word ends
+                while (!Objects.equals(y, " ") && curRow != POOL_SIZE) {
+                    word += y;
+                    ++curRow;
+                    if (curRow == POOL_SIZE) {
+                        break;
                     }
-                    word = "";
-                }//for i
-            }
+                    y = pool.getButtonValue(curRow, curColumn);
+                }//while
+                rowEnds = curRow - 1;
+
+                //checking
+                if (word.length() > 1) {
+                    if (dic.isValidWord(word)) {
+                        int ii = rowStarts - 1;
+
+                        do {
+                            ++ii;
+                            x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
+                            x.setLocked(true);
+                            pool.setButtonLocked(ii, curColumn, true);
+                        }
+                        while (ii != rowEnds);
+                        dic.removeWord(word);
+                        curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
+                        curPlayer.emptyPLAYER_SKIPPED();
+                        //if one word played -raise flag
+                        flagIfWordPlayed = true;
+                    }
+                }
+                word = "";
+            }//for i
+
 
             //ты проверяешь первое слово только
-            //look over each row
-            //rightward
-            curColumn = 0;
-            boolean bigFlagColumnEnds = false;
 
             for (int i : rows) {
-                while (!bigFlagColumnEnds) {
-                    columnEnds = 0;
-                    columnStarts = 0;
-                    rowEnds = 0;
-                    rowStarts = 0;
-                    //только в одной колонке
-                    curRow = i;
+                //look over each row
+                //rightward
+
+                curRow = i;
+                curColumn = 0;
+
+                columnEnds = 0;
+                columnStarts = 0;
+                rowEnds = 0;
+                rowStarts = 0;
+
+                y = pool.getButtonValue(curRow, curColumn);
+                //find where word starts
+                while (curColumn != POOL_SIZE) {
                     y = pool.getButtonValue(curRow, curColumn);
-                    //find where word starts
-                    while (curColumn != POOL_SIZE) {
-                        y = pool.getButtonValue(curRow, curColumn);
-                        if (Objects.equals(y, " ") || Objects.equals(y, "")) {
-                            ++curColumn;
-                            //continue;
-                        } else {
-                            columnStarts = curColumn;
-                            break;
-                        }
-                    }
-                    //мы искали начало слова а пришли в конец
-                    if (curColumn == POOL_SIZE) {
-                        bigFlagColumnEnds = true;
+                    if (Objects.equals(y, " ") || Objects.equals(y, "")) {
+                        ++curColumn;
+                        //continue;
+                    } else {
+                        columnStarts = curColumn;
                         break;
                     }
-                    //find where word ends
-                    while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
-                        word += y;
-                        ++curColumn;
-                        if (curColumn == POOL_SIZE) {
-                            bigFlagColumnEnds = true;
-                            break;
-                        }
-                        y = pool.getButtonValue(curRow, curColumn);
+                }
+                //мы искали начало слова а пришли в конец
+                if (curColumn == POOL_SIZE) {
+                    break;
+                }
+                //find where word ends
+                while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
+                    word += y;
+                    ++curColumn;
+                    if (curColumn == POOL_SIZE) {
+                        break;
                     }
-                    columnEnds = curColumn - 1;
+                    y = pool.getButtonValue(curRow, curColumn);
+                }
+                columnEnds = curColumn - 1;
 
-                    //checking
-                    if (word.length() > 1) {
-                        if (dic.isValidWord(word)) {
-                            int jj = columnStarts - 1;
-                            do {
-                                ++jj;
-                                x = (ScrabbleTile) findViewById(pool.getButtonID(curRow, jj));
-                                x.setLocked(true);
-                                pool.setButtonLocked(curRow, jj, true);
-                            }
-                            while (jj != columnEnds);
-                            dic.removeWord(word);
-                            curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                            curPlayer.emptyPLAYER_SKIPPED();
-                            //if one word played -raise flag
-                            flagIfWordPlayed = true;
+                //checking
+                if (word.length() > 1) {
+                    if (dic.isValidWord(word)) {
+                        int jj = columnStarts - 1;
+                        do {
+                            ++jj;
+                            x = (ScrabbleTile) findViewById(pool.getButtonID(curRow, jj));
+                            x.setLocked(true);
+                            pool.setButtonLocked(curRow, jj, true);
                         }
+                        while (jj != columnEnds);
+                        dic.removeWord(word);
+                        curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
+                        curPlayer.emptyPLAYER_SKIPPED();
+                        //if one word played -raise flag
+                        flagIfWordPlayed = true;
                     }
-                    word = "";
-                }//for i
-            }
+                }
+                word = "";
+            }//for i
+
 
             //if nor 1 one word played - turn is stays over current player
             if (!flagIfWordPlayed) {
@@ -355,9 +349,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Toast.makeText(MainActivity.this, R.string.StringForToast_submit, Toast.LENGTH_SHORT).show();
     }
 
+    private void reloadGame() {
+        loadWordsFromPlaersToDic();
+        newGame();
+    }
+
     private void newGame() {
         loadPlayers();
-        loadWordsFromPlaersToDic();
         loadNavD();
         loadPool();
         loadTable();
@@ -367,7 +365,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void loadWordsFromPlaersToDic() {
-        List<String> myList = p1.getPlayedWords();
+        List<String> myList;
+        myList = p1.getPlayedWords();
         for (String c : myList) {
             dic.addWord(c);
         }
@@ -506,7 +505,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         pool = new Board(POOL_SIZE);
         rack = new Rack(POOL_SIZE);
         engBag = new engBag();
-        //rusBag = new rusBag();
+        engBag.load();
     }
 
     private void changeCurrentPlayer() {
@@ -549,12 +548,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         String letter;
         Integer m;
         try {
-            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.rus_distribution));
+            dataInputStream = new DataInputStream(getResources().openRawResource(R.raw.eng_distribution));
             while (dataInputStream.available() > 0) {
                 text = (dataInputStream.readLine());
                 letter = text.substring(0, 1);
-                text = text.substring(5);
-                //for eng 4
+                text = text.substring(4);
                 m = Integer.parseInt(text);
                 vectorOfLettersWorth.add(new Pair<>(letter, m));
             }
@@ -683,8 +681,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void forcedFillRack() {
         int id;
-        String text = //rusBag.getLettersToString(POOL_SIZE);
-                engBag.getLettersToString(POOL_SIZE);
+        String text = engBag.getLettersToString(POOL_SIZE);
         for (int i = 0; i < POOL_SIZE; ++i) {
             id = rack.getButtonID(i);
             ScrabbleTile btn = (ScrabbleTile) findViewById(id);
