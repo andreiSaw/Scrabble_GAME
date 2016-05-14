@@ -8,8 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Bag {
-    String LETTERS =
+public class engBag {
+
+    private String letters =
             "AAAAAAAAA" +
                     "BB" +
                     "CC" +
@@ -39,9 +40,12 @@ public class Bag {
     private int count = -1;
     private List<String> list;
 
-    public Bag() {
+    public engBag() {
         list = new ArrayList<>();
-        String context = LETTERS;
+    }
+
+    protected void load() {
+        String context = letters;
         String temp = "";
         while (context.length() > 0) {
             temp = context.substring(0, 1);
@@ -50,7 +54,7 @@ public class Bag {
         }
     }
 
-    public String getLettersToString(int count) {
+    protected String getLettersToString(int count) {
         String retString = "";
         int n = count;
         if (count > getCount()) {
@@ -65,12 +69,12 @@ public class Bag {
         return retString;
     }
 
-    public int getCount() {
+    protected int getCount() {
         makeCount();
         return count;
     }
 
-    private void makeCount() {
+    protected void makeCount() {
         count = list.size();
     }
 
@@ -81,5 +85,6 @@ public class Bag {
             letters = letters.substring(1);
         }
     }
-
 }
+
+

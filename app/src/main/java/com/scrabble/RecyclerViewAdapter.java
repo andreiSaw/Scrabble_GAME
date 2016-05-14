@@ -29,11 +29,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         int iconResourceId = 0;
         viewHolder.icon.setImageResource(iconResourceId);
         viewHolder.name.setText(record);
-        if (i % 2 == 0) {
+        if ((i + 1) % 2 == 0) {
             viewHolder.name.setBackgroundResource(R.color.colorLightBlueTile);
             return;
         }
-        if (i % 3 == 0) {
+        if ((i + 1) % 3 == 0) {
             viewHolder.name.setBackgroundResource(R.color.colorLightPinkTile);
             return;
         }
