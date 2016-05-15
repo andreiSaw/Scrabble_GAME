@@ -102,19 +102,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 Intent intent;
                 switch (str) {
-                    case "Help":
-                        //TODO нормальный активити
-                        intent = new Intent(MainActivity.this, HelpActivity.class);
+                    case "About":
+                        intent = new Intent(MainActivity.this, AboutActivity.class);
                         MainActivity.this.startActivity(intent);
                         break;
                     case "Share":
                         Intent share = new Intent(android.content.Intent.ACTION_SEND);
                         share.setType("text/plain");
-                        share.putExtra(Intent.EXTRA_TEXT, "I'm already using Scrabble Game. Try yourself: vk.com");
+                        share.putExtra(Intent.EXTRA_TEXT, "I'm already using Scrabble Game. Try more yourself: https://goo.gl/DH8ifn");
                         startActivity(Intent.createChooser(share, "Share post"));
                         break;
                     case "New Game":
-                        newGame();
+                        reloadGame();
                         break;
                     case "Pass":
                         if (pool.isUnlockedButtonOnPool()) {
@@ -131,7 +130,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         break;
                     case "Change rack":
                         engBag.pushLetters(rack.toString() + _letterBuf);
-                        // rusBag.pushLetters(rack.toString() + _letterBuf);
                         _letterBuf = "";
                         if (pool.isUnlockedButtonOnPool()) {
                             ShakeToasting();
@@ -152,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
-    private char firstLetterInAlphabet = 'a';
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -417,7 +414,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         new PrimaryDrawerItem().withName("New Game").withIcon(FontAwesome.Icon.faw_play_circle).withIdentifier(3),
                         new PrimaryDrawerItem().withName("Pass").withIcon(FontAwesome.Icon.faw_arrow_circle_o_right),
                         new PrimaryDrawerItem().withName("Change rack").withIcon(FontAwesome.Icon.faw_arrow_circle_o_down),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_help).withIcon(FontAwesome.Icon.faw_question),
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_about).withIcon(FontAwesome.Icon.faw_question),
                         new PrimaryDrawerItem().withName("Played words").withIcon(FontAwesome.Icon.faw_file_text),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_share).withIcon(FontAwesome.Icon.faw_paper_plane)).withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
@@ -532,6 +529,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         boolean flag;
         flag = istarts == iends;
         while (word.length() > 0) {
+            char firstLetterInAlphabet = 'a';
             int x = word.charAt(0) - firstLetterInAlphabet;
             score += vectorOfLettersWorth.get(x).second * pool.getBonus(istarts, jstarts);
             if (!flag) {

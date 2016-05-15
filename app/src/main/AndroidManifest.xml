@@ -25,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="activity_pack.HelpActivity"
+            android:name="activity_pack.AboutActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity

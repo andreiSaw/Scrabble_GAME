@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.tools.R;
 
-public class HelpActivity extends AppCompatActivity {
+public class AboutActivity extends AppCompatActivity {
 
     /**
      * Indicates whether the specified app ins installed and can used as an intent. This
@@ -36,29 +36,29 @@ public class HelpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_help);
+        setContentView(R.layout.activity_about);
     }
 
     public void instagramOnCLickListner(View view) {
         final String appName = "com.instagram.android";
-        final boolean isAppInstalled = isAppAvailable(HelpActivity.this.getApplicationContext(), appName);
+        final boolean isAppInstalled = isAppAvailable(AboutActivity.this.getApplicationContext(), appName);
         if (isAppInstalled) {
             Intent inst = new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://instagram.com/_u/sky_tmb"));
             startActivity(inst);
         } else {
-            Toast.makeText(HelpActivity.this, "Instagram not installed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AboutActivity.this, "Instagram not installed", Toast.LENGTH_SHORT).show();
         }
     }
 
     public void telegramOnCLickListner(View view) {
         final String appName = "org.telegram.messenger";
-        final boolean isAppInstalled = isAppAvailable(HelpActivity.this.getApplicationContext(), appName);
+        final boolean isAppInstalled = isAppAvailable(AboutActivity.this.getApplicationContext(), appName);
         if (isAppInstalled) {
             Intent telegram = new Intent(Intent.ACTION_VIEW, Uri.parse("https://telegram.me/sky_tmb"));
             startActivity(telegram);
         } else {
-            Toast.makeText(HelpActivity.this, "Telegram not installed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(AboutActivity.this, "Telegram not installed", Toast.LENGTH_SHORT).show();
         }
     }
 
