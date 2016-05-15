@@ -661,7 +661,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //if (rusBag.getCount() > 0) {
         if (engBag.getCount() > 0) {
 
-            String letters = //rusBag.getLettersToString(countRack());
+            String letters =
                     engBag.getLettersToString(countRack());
             fillRack(letters);
             //simplify
