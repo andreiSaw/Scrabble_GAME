@@ -25,4 +25,5 @@
     <string name="StringForToast_shake">Submit at least one word and then shake your phone to move unplayed tiles down</string>
     <string name="StringForToast_submit">Submit at least one word</string>
     <string name="StringForMiddle">First turn should cover middle tile</string>
+    <string name="StringForShare">I\'m already using Scrabble Game. Try more yourself: https://goo.gl/DH8ifn</string>
 </resources>

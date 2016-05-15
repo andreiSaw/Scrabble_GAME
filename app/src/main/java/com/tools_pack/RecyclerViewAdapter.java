@@ -35,12 +35,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             viewHolder.name.setBackgroundResource(R.color.colorLightBlueTile);
             return;
         }
-        if ((i + 1) % 3 == 0) {
-            viewHolder.name.setBackgroundResource(R.color.colorLightPinkTile);
-            return;
-        }
         viewHolder.name.setBackgroundResource(R.color.colorLightGreenTile);
-        return;
     }
 
     @Override

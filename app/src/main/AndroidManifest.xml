@@ -28,9 +28,6 @@
             android:name="activity_pack.AboutActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity
-            android:name="activity_pack.RecyclerViewActivity"
-            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

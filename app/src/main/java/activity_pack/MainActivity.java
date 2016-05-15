@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     case "Share":
                         Intent share = new Intent(android.content.Intent.ACTION_SEND);
                         share.setType("text/plain");
-                        share.putExtra(Intent.EXTRA_TEXT, "I'm already using Scrabble Game. Try more yourself: https://goo.gl/DH8ifn");
+                        share.putExtra(Intent.EXTRA_TEXT, getString(R.string.StringForShare));
                         startActivity(Intent.createChooser(share, "Share post"));
                         break;
                     case "New Game":
@@ -154,10 +154,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         @Override
         public void onClick(View v) {
+
             if (pool.isButtonEmpty(POOL_SIZE / 2, POOL_SIZE / 2)) {
                 Toast.makeText(MainActivity.this, R.string.StringForMiddle, Toast.LENGTH_SHORT).show();
                 return;
             }
+            //Todo когда сдаешь слово - важно, чтобы одна из букв уже была залочена
             boolean flagIfWordPlayed = false;
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             ScrabbleTile x;
@@ -231,7 +233,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (word.length() > 1) {
                     if (dic.isValidWord(word)) {
                         int ii = rowStarts - 1;
-
                         do {
                             ++ii;
                             x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
@@ -248,9 +249,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 word = "";
             }//for i
-
-
-            //ты проверяешь первое слово только
 
             for (int i : rows) {
                 //look over each row
@@ -276,10 +274,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         break;
                     }
                 }
-                //мы искали начало слова а пришли в конец
-                if (curColumn == POOL_SIZE) {
-                    break;
-                }
+
                 //find where word ends
                 while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
                     word += y;
@@ -288,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         break;
                     }
                     y = pool.getButtonValue(curRow, curColumn);
-                }
+                }//while
                 columnEnds = curColumn - 1;
 
                 //checking
@@ -396,8 +391,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         /*
         https://habrahabr.ru/post/250765/
          */
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // enable ActionBar app icon to behave as action to toggle nav drawer
@@ -452,19 +445,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // Заглушка, работа с меню
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
     // Заглушка, работа с меню
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -491,6 +477,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         params.addRule(RelativeLayout.BELOW, pool.getButtonID(POOL_SIZE - 1, POOL_SIZE - 1));
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
         params.setMargins(_margin, _margin, _margin, _margin);
+        sbmButton.setTextSize(20f);
         sbmButton.setLayoutParams(params);
         sbmButton.setId(View.generateViewId());
 
@@ -570,7 +557,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void loadListeners() {
-        //
+
         for (int i = 0; i < POOL_SIZE; ++i) {
             for (int j = 0; j < POOL_SIZE; ++j) {
                 final int x1 = i;

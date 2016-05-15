@@ -47,7 +47,7 @@ public class Player implements Serializable {
         playedWords.add(word);
     }
 
-    public List getPlayedWords() {
+    public List<String> getPlayedWords() {
         return playedWords;
     }
 
