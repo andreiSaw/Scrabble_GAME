@@ -141,7 +141,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         break;
                     case "Played words":
                         Intent intent1 = new Intent(MainActivity.this, RecyclerViewActivity.class);
-                        intent1.putExtra("Player", curPlayer);
+                        Bundle bundle = new Bundle();
+
+                        bundle.putSerializable("Player", curPlayer);
+
+                        intent1.putExtras(bundle);
+
                         MainActivity.this.startActivity(intent1);
                         break;
                     default:
@@ -150,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
+    private boolean flagIfWordPlayed = false;
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
         @Override
@@ -159,13 +165,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Toast.makeText(MainActivity.this, R.string.StringForMiddle, Toast.LENGTH_SHORT).show();
                 return;
             }
+            if (!_letterBuf.equals("")) {
+                Toast.makeText(MainActivity.this, "Please put tile down on board or take it to the rack", Toast.LENGTH_SHORT).show();
+                return;
+            }
             //Todo когда сдаешь слово - важно, чтобы одна из букв уже была залочена
-            boolean flagIfWordPlayed = false;
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             ScrabbleTile x;
             String y;
             String word = "";
-            int curColumn, curRow;
+            int curColumn = 0, curRow = 0;
             int columnStarts = 0, columnEnds = 0, rowStarts = 0, rowEnds = 0;
             //i - is row
             //j - is column
@@ -204,51 +213,60 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 columnStarts = 0;
                 rowEnds = 0;
                 rowStarts = 0;
+                boolean flag = false;
+                while (!flag) {
 
-                y = pool.getButtonValue(curRow, curColumn);
-                //find where word starts
-                while (curRow != POOL_SIZE) {
                     y = pool.getButtonValue(curRow, curColumn);
-                    if (Objects.equals(y, " ") || Objects.equals(y, "")) {
-                        ++curRow;
-                        //continue;
-                    } else {
-                        rowStarts = curRow;
-                        break;
-                    }
-                }//while
-
-                //find where word ends
-                while (!Objects.equals(y, " ") && curRow != POOL_SIZE) {
-                    word += y;
-                    ++curRow;
-                    if (curRow == POOL_SIZE) {
-                        break;
-                    }
-                    y = pool.getButtonValue(curRow, curColumn);
-                }//while
-                rowEnds = curRow - 1;
-
-                //checking
-                if (word.length() > 1) {
-                    if (dic.isValidWord(word)) {
-                        int ii = rowStarts - 1;
-                        do {
-                            ++ii;
-                            x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
-                            x.setLocked(true);
-                            pool.setButtonLocked(ii, curColumn, true);
+                    //find where word starts
+                    while (curRow != POOL_SIZE) {
+                        y = pool.getButtonValue(curRow, curColumn);
+                        if (Objects.equals(y, " ") || Objects.equals(y, "")) {
+                            ++curRow;
+                            //continue;
+                        } else {
+                            rowStarts = curRow;
+                            break;
                         }
-                        while (ii != rowEnds);
-                        dic.removeWord(word);
-                        curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                        curPlayer.emptyPLAYER_SKIPPED();
-                        //if one word played -raise flag
-                        flagIfWordPlayed = true;
+                    }//while
+
+                    if (curRow == POOL_SIZE) {
+                        flag = true;
                     }
-                }
-                word = "";
+
+                    //find where word ends
+                    while (!Objects.equals(y, " ") && curRow != POOL_SIZE) {
+                        word += y;
+                        ++curRow;
+                        if (curRow == POOL_SIZE) {
+                            flag = true;
+                            break;
+                        }
+                        y = pool.getButtonValue(curRow, curColumn);
+                    }//while
+                    rowEnds = curRow - 1;
+
+                    //checking
+                    if (word.length() > 1) {
+                        if (dic.isValidWord(word)) {
+                            int ii = rowStarts - 1;
+                            do {
+                                ++ii;
+                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
+                                x.setLocked(true);
+                                pool.setButtonLocked(ii, curColumn, true);
+                            }
+                            while (ii != rowEnds);
+                            dic.removeWord(word);
+                            curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
+                            curPlayer.emptyPLAYER_SKIPPED();
+                            //if one word played -raise flag
+                            flagIfWordPlayed = true;
+                        }
+                    }
+                    word = "";
+                }//while flag
             }//for i
+
 
             for (int i : rows) {
                 //look over each row
@@ -261,50 +279,57 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 columnStarts = 0;
                 rowEnds = 0;
                 rowStarts = 0;
-
-                y = pool.getButtonValue(curRow, curColumn);
-                //find where word starts
-                while (curColumn != POOL_SIZE) {
+                boolean flag = false;
+                while (!flag) {
                     y = pool.getButtonValue(curRow, curColumn);
-                    if (Objects.equals(y, " ") || Objects.equals(y, "")) {
-                        ++curColumn;
-                        //continue;
-                    } else {
-                        columnStarts = curColumn;
-                        break;
-                    }
-                }
-
-                //find where word ends
-                while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
-                    word += y;
-                    ++curColumn;
-                    if (curColumn == POOL_SIZE) {
-                        break;
-                    }
-                    y = pool.getButtonValue(curRow, curColumn);
-                }//while
-                columnEnds = curColumn - 1;
-
-                //checking
-                if (word.length() > 1) {
-                    if (dic.isValidWord(word)) {
-                        int jj = columnStarts - 1;
-                        do {
-                            ++jj;
-                            x = (ScrabbleTile) findViewById(pool.getButtonID(curRow, jj));
-                            x.setLocked(true);
-                            pool.setButtonLocked(curRow, jj, true);
+                    //find where word starts
+                    while (curColumn != POOL_SIZE) {
+                        y = pool.getButtonValue(curRow, curColumn);
+                        if (Objects.equals(y, " ") || Objects.equals(y, "")) {
+                            ++curColumn;
+                            //continue;
+                        } else {
+                            columnStarts = curColumn;
+                            break;
                         }
-                        while (jj != columnEnds);
-                        dic.removeWord(word);
-                        curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                        curPlayer.emptyPLAYER_SKIPPED();
-                        //if one word played -raise flag
-                        flagIfWordPlayed = true;
+                    }//while
+
+                    if (curColumn == POOL_SIZE) {
+                        flag = true;
                     }
-                }
-                word = "";
+
+                    //find where word ends
+                    while (!Objects.equals(y, " ") && curColumn != POOL_SIZE) {
+                        word += y;
+                        ++curColumn;
+                        if (curColumn == POOL_SIZE) {
+                            flag = true;
+                            break;
+                        }
+                        y = pool.getButtonValue(curRow, curColumn);
+                    }//while
+                    columnEnds = curColumn - 1;
+
+                    //checking
+                    if (word.length() > 1) {
+                        if (dic.isValidWord(word)) {
+                            int jj = columnStarts - 1;
+                            do {
+                                ++jj;
+                                x = (ScrabbleTile) findViewById(pool.getButtonID(curRow, jj));
+                                x.setLocked(true);
+                                pool.setButtonLocked(curRow, jj, true);
+                            }
+                            while (jj != columnEnds);
+                            dic.removeWord(word);
+                            curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
+                            curPlayer.emptyPLAYER_SKIPPED();
+                            //if one word played -raise flag
+                            flagIfWordPlayed = true;
+                        }
+                    }
+                    word = "";
+                }//while flag
             }//for i
 
 
@@ -317,6 +342,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     changeCurrentPlayer();
                     fillRack();//ask new word to rack
+                    flagIfWordPlayed = false;
                 }
             }
         }
@@ -631,7 +657,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return count;
     }
 
-
     private void fillRack() {
         //if (rusBag.getCount() > 0) {
         if (engBag.getCount() > 0) {
@@ -825,7 +850,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     Vector unlockedTilesVector = pool.getUnclockedTiles();
                     if (!unlockedTilesVector.isEmpty()) {
                         unlockedTilesToRack();
+                        if (flagIfWordPlayed) {
+                            changeCurrentPlayer();
+                            fillRack();
+                        }
                     }
+                    //todo check if _letterbuf
                     //Например, включить виброрежим на 0.3 секунду
                     long mills = 300L;
                     vibrate(mills);
@@ -853,12 +883,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             int i = 0;
             while (i < unlockedTilesVector.size()) {
                 ScrabbleTile scrabbleTile = (ScrabbleTile) findViewById((Integer) unlockedTilesVector.get(i));
-                String _letterBuf;
-                _letterBuf = "" + scrabbleTile.getText();
+                String _letter;
+                _letter = "" + scrabbleTile.getText();
                 scrabbleTile.setEmpty(true);
                 scrabbleTile.setText(" ");
                 pool.setButtonValueById(scrabbleTile.getId(), " ");
-                Vector unlockedTiles = rack.pushButtonValue(_letterBuf);
+                Vector unlockedTiles = rack.pushButtonValue(_letter);
                 int j = 0;
                 while (j < unlockedTiles.size()) {
                     ScrabbleTile scrabbleTile1 = (ScrabbleTile) findViewById((Integer) unlockedTiles.get(j));

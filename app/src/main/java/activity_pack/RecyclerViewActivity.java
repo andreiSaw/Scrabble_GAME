@@ -22,8 +22,9 @@ public class RecyclerViewActivity extends Activity {
         setContentView(R.layout.activity_recyclerview);
 
         Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
 
-        Player p = (Player) intent.getSerializableExtra("Player");
+        Player p = (Player) extras.getSerializable("Player");
         List<String> records = p.getPlayedWords();
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
