@@ -9,7 +9,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.tools.R;
 import com.tools_pack.Player;
-import com.tools_pack.RecyclerViewAdapter;
+import com.tools_pack.WordsViewActivity;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class RecyclerViewActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recyclerview);
+        setContentView(R.layout.activity_wordsview);
 
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
@@ -28,7 +28,7 @@ public class RecyclerViewActivity extends Activity {
         List<String> records = p.getPlayedWords();
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(records);
+        WordsViewActivity adapter = new WordsViewActivity(records);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
 

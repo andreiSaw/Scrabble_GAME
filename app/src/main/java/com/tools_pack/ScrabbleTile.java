@@ -37,7 +37,7 @@ public class ScrabbleTile extends Button {
     public ScrabbleTile(Context context) {
         super(context);
         //  listen();
-        this.setTextSize(20f);
+        setTextSize();
         this.setTypeface(null, Typeface.BOLD);
         initWH();
     }
@@ -67,6 +67,10 @@ public class ScrabbleTile extends Button {
         double d = (double) w * marginCoef;
         _marginTop = (int) d;
 
+    }
+
+    public void setTextSize() {
+        this.setTextSize(20f);
     }
 
     public void loadBonuses(int i, int j) {

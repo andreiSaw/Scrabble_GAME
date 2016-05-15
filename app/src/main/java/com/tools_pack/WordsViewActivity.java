@@ -11,11 +11,11 @@ import com.tools.R;
 
 import java.util.List;
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+public class WordsViewActivity extends RecyclerView.Adapter<WordsViewActivity.ViewHolder> {
 
     private List<String> records;
 
-    public RecyclerViewAdapter(List<String> records) {
+    public WordsViewActivity(List<String> records) {
         this.records = records;
     }
 

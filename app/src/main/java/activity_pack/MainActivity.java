@@ -803,6 +803,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     bt.initWH();
                     bt.setLocked(false);
                     bt.setEmpty(true);
+                    bt.setTextSize();
                     bt.setMarginForTop();
                     bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                     bt.loadBonuses(i, j);
