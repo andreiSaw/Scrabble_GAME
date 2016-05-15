@@ -1,4 +1,4 @@
-package com.scrabble;
+package com.tools;
 
 import org.junit.Test;
 
