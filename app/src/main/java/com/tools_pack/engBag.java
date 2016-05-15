@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class engBag {
+public class EngBag {
 
     private String letters =
             "AAAAAAAAA" +
@@ -40,7 +40,7 @@ public class engBag {
     private int count = -1;
     private List<String> list;
 
-    public engBag() {
+    public EngBag() {
         list = new ArrayList<>();
     }
 

@@ -39,7 +39,7 @@ import com.tools_pack.Dictionary;
 import com.tools_pack.Player;
 import com.tools_pack.Rack;
 import com.tools_pack.ScrabbleTile;
-import com.tools_pack.engBag;
+import com.tools_pack.EngBag;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Board pool;
     private String _letterBuf = "";
     private Vector<Pair<String, Integer>> vectorOfLettersWorth;
-    private com.tools_pack.engBag engBag;
+    private EngBag engBag;
     private Drawer.Result drawerResult = null;
     private DrawerLayout.DrawerListener mDrawerListenernew = new DrawerLayout.DrawerListener() {
         @Override
@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             ShakeToasting();
                         } else {
                             if (curPlayer.getPLAYER_SKIPPED() == 1) {
-                                showDialog();
+                                showWindDialog();
                                 reloadGame();
                             } else {
                                 curPlayer.increment_PLAYER_SKIPPED();
@@ -521,7 +521,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void loadPool() {
         pool = new Board(POOL_SIZE);
         rack = new Rack(POOL_SIZE);
-        engBag = new engBag();
+        engBag = new EngBag();
         engBag.load();
     }
 
@@ -666,24 +666,26 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             fillRack(letters);
             //simplify
         } else {
-            showDialog();
+            showWindDialog();
         }
     }
 
-    private void showDialog() {
+    private void showWindDialog() {
         /*
         http://developer.alexanderklimov.ru/android/alertdialog.php
          */
         String s;
+        String result = "";
         if (p1.getScore() > p2.getScore()) {
-            s = p1.toString();
+            result = p1.getName() + " wins!";
         } else if (p2.getScore() > p1.getScore()) {
-            s = p2.toString();
+            result = p2.getName() + " wins!";
         } else {
-            s = p1.toString() + " and " + p2.toString();
+            result = " It's Draw!";
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Congratulations!")
+        s = p1.toString() + "\n" + p2.toString();
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
+        builder.setTitle("Congratulations!" + result)
                 .setMessage(s)
                 .setCancelable(false)
                 .setNegativeButton("OK",
