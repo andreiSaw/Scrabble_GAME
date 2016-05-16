@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Intent intent;
                 switch (str) {
                     case "2-letters words":
-                        intent = new Intent(MainActivity.this, WordsListActivity.class);
+                        intent = new Intent(MainActivity.this, TwoLettersWordsListActivity.class);
                         startActivity(intent);
                         break;
                     case "About":
