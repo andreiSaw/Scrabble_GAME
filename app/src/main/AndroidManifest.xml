@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="activity_pack.MainActivity"
+            android:name="com.activity_pack.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -23,15 +23,18 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="activity_pack.AboutActivity"
+            android:name="com.activity_pack.AboutActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="activity_pack.RecyclerViewActivity"
+            android:name="com.activity_pack.RecyclerViewActivity"
             android:screenOrientation="portrait" >
         </activity>
-        <activity android:name="activity_pack.WordsListActivity"
-            android:screenOrientation="portrait">
+        <activity
+            android:name="com.activity_pack.WordsListActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity android:name="com.activity_pack.HelpActivity" >
         </activity>
     </application>
 

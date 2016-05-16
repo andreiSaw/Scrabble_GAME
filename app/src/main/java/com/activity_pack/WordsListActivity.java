@@ -1,15 +1,11 @@
-package activity_pack;
+package com.activity_pack;
 
 import android.graphics.Typeface;
-import android.support.v4.view.ScrollingView;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 
 import com.tools.R;
 
@@ -184,7 +180,7 @@ public class WordsListActivity extends AppCompatActivity {
                         break;
                 }
             }
-            bt.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
+            bt.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
             previousId = bt.getId();
             i++;
             k++;

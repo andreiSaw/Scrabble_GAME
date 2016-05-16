@@ -1,4 +1,4 @@
-package activity_pack;
+package com.activity_pack;
 
 import android.app.Activity;
 import android.content.Intent;

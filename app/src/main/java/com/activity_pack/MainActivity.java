@@ -1,4 +1,4 @@
-package activity_pack;
+package com.activity_pack;
 
 import android.app.Activity;
 import android.content.Context;
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         share.putExtra(Intent.EXTRA_TEXT, getString(R.string.StringForShare));
                         startActivity(Intent.createChooser(share, "Share post"));
                         break;
-                    case "New Game":
+                    case "New game":
                         reloadGame();
                         break;
                     case "Pass":
@@ -154,6 +154,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                         MainActivity.this.startActivity(intent1);
                         break;
+                    case "Help":
+                        Intent intent2 = new Intent(MainActivity.this, HelpActivity.class);
+                        startActivity(intent2);
+                        break;
                     default:
                         break;
                 }
@@ -166,14 +170,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         @Override
         public void onClick(View v) {
 
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             if (pool.isButtonEmpty(POOL_SIZE / 2, POOL_SIZE / 2)) {
                 Toast.makeText(MainActivity.this, R.string.StringForMiddle, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!_letterBuf.equals("")) {
-                Toast.makeText(MainActivity.this, "Please put tile down on board or take it to the rack", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.StringForPutTileDown, Toast.LENGTH_SHORT).show();
                 return;
             }
+
             //Todo когда сдаешь слово - важно, чтобы одна из букв уже была залочена
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             ScrabbleTile x;
@@ -352,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
-
+    Thread thread;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -363,7 +373,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         loadGameResolution();
-        loadDataWithScanner();
+         thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                loadDataWithScanner();
+            }
+        });
+        thread.start();
+
         loadDistribution();
 
         newGame();
@@ -435,11 +452,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(p1.getName()).withIcon(FontAwesome.Icon.faw_android).withIdentifier(1).withBadge(p1.getScoreToString()),
                         new PrimaryDrawerItem().withName(p2.getName()).withIcon(FontAwesome.Icon.faw_android).withIdentifier(2).withBadge(p2.getScoreToString()),
-                        new PrimaryDrawerItem().withName("New Game").withIcon(FontAwesome.Icon.faw_play_circle).withIdentifier(3),
-                        new PrimaryDrawerItem().withName("Pass").withIcon(FontAwesome.Icon.faw_arrow_circle_o_right),
-                        new PrimaryDrawerItem().withName("Change rack").withIcon(FontAwesome.Icon.faw_arrow_circle_o_down),
-                        new PrimaryDrawerItem().withName("Played words").withIcon(FontAwesome.Icon.faw_file_text),
-                        new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_key).withName("2-letters words"),
+                        new PrimaryDrawerItem().withName(getString(R.string.drawer_item_newgame)).withIcon(FontAwesome.Icon.faw_play_circle).withIdentifier(3),
+                        new PrimaryDrawerItem().withName(getString(R.string.drawer_item_pass)).withIcon(FontAwesome.Icon.faw_arrow_circle_o_right),
+                        new PrimaryDrawerItem().withName(getString(R.string.drawer_item_changerack)).withIcon(FontAwesome.Icon.faw_arrow_circle_o_down),
+                        new PrimaryDrawerItem().withName(getString(R.string.drawer_item_playedwords)).withIcon(FontAwesome.Icon.faw_file_text),
+                        new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_key).withName(getString(R.string.drawer_item_2word)),
+                        new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_archive).withName(getString(R.string.drawer_item_help)),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_about).withIcon(FontAwesome.Icon.faw_question),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_share).withIcon(FontAwesome.Icon.faw_paper_plane)).withOnDrawerListener(new Drawer.OnDrawerListener() {
