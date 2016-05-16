@@ -9,7 +9,7 @@ import android.widget.RelativeLayout;
 
 import com.tools.R;
 
-public class WordsListActivity extends AppCompatActivity {
+public class TwoLettersWordsListActivity extends AppCompatActivity {
 
     String _wordsString = "aa\n" +
             "ab\n" +
@@ -116,7 +116,7 @@ public class WordsListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_words_list);
+        setContentView(R.layout.activity_two_letters_words_list);
         load();
     }
 

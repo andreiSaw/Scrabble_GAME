@@ -14,7 +14,7 @@ import com.tools_pack.WordsViewAdapter;
 import java.util.List;
 
 
-public class RecyclerViewActivity extends Activity {
+public class WordsViewActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -32,12 +32,12 @@ public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.View
         int iconResourceId = 0;
         viewHolder.icon.setImageResource(iconResourceId);
         viewHolder.name.setText(record);
+        viewHolder.name.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
         if ((i + 1) % 2 == 0) {
             viewHolder.name.setBackgroundResource(R.color.colorLightBlueTile);
             return;
         }
         viewHolder.name.setBackgroundResource(R.color.colorLightGreenTile);
-        viewHolder.name.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
     }
 
     @Override

@@ -36,11 +36,13 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 import com.tools.R;
 import com.tools_pack.Board;
+import com.tools_pack.DepthFirstSearch_Iterative;
 import com.tools_pack.Dictionary;
+import com.tools_pack.EngBag;
 import com.tools_pack.Player;
 import com.tools_pack.Rack;
 import com.tools_pack.ScrabbleTile;
-import com.tools_pack.EngBag;
+import com.tools_pack.WordToAdd;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -145,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         }
                         break;
                     case "Played words":
-                        Intent intent1 = new Intent(MainActivity.this, RecyclerViewActivity.class);
+                        Intent intent1 = new Intent(MainActivity.this, WordsViewActivity.class);
                         Bundle bundle = new Bundle();
 
                         bundle.putSerializable("Player", curPlayer);
@@ -164,27 +166,83 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
+
+    private void submitWordLeftToRight(WordToAdd wd) {
+        ScrabbleTile x;
+        int jj = wd.getColumnStarts() - 1;
+        do {
+            ++jj;
+            x = (ScrabbleTile) findViewById(pool.getButtonID(wd.getCurRow(), jj));
+            x.setLocked(true);
+            pool.setButtonLocked(wd.getCurRow(), jj, true);
+        }
+        while (jj != wd.getColumnEnds());
+        dic.removeWord(wd.getWord());
+        curPlayer.updateScore(getWordReward(wd.getWord(),
+                wd.getRowStarts(), wd.getColumnStarts(),
+                wd.getRowEnds(), wd.getColumnEnds()));
+        curPlayer.emptyPLAYER_SKIPPED();
+        //if one word played -raise flag
+        flagIfWordPlayed = true;
+    }
+
+    //  private void submitWordUpsideDown(String word, int rowStarts, int rowEnds, int columnStarts, int columnEnds, int curColumn) {
+    private void submitWordUpsideDown(WordToAdd wd) {
+
+        ScrabbleTile x;
+        int ii = wd.getRowStarts() - 1;
+
+        do {
+            ++ii;
+            x = (ScrabbleTile) findViewById(pool.getButtonID(ii, wd.getCurColumn()));
+            x.setLocked(true);
+            pool.setButtonLocked(ii, wd.getCurColumn(), true);
+        }
+        while (ii != wd.getRowEnds());
+        //delete word
+        dic.removeWord(wd.getWord());
+        curPlayer.updateScore(getWordReward(wd.getWord(),
+                wd.getRowStarts(), wd.getColumnStarts(),
+                wd.getRowEnds(), wd.getColumnEnds()));
+        curPlayer.emptyPLAYER_SKIPPED();
+        //if one word played -raise flag
+        flagIfWordPlayed = true;
+
+    }
+
+    private void submitWord(WordToAdd wordToAdd) {
+
+        if (wordToAdd.getColumnEnds() == wordToAdd.getColumnStarts()) {
+            submitWordUpsideDown(wordToAdd);
+        } else {
+            submitWordLeftToRight(wordToAdd);
+        }
+    }
+
+    boolean fisetthread = false;
     private boolean flagIfWordPlayed = false;
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
         @Override
         public void onClick(View v) {
-
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (!fisetthread) {
+                try {
+                    thread.join();
+                    fisetthread = true;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
             if (pool.isButtonEmpty(POOL_SIZE / 2, POOL_SIZE / 2)) {
-                Toast.makeText(MainActivity.this, R.string.StringForMiddle, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.toast_middle, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (!_letterBuf.equals("")) {
-                Toast.makeText(MainActivity.this, R.string.StringForPutTileDown, Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, R.string.toast_tiledown, Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            //Todo когда сдаешь слово - важно, чтобы одна из букв уже была залочена
+            Vector<WordToAdd> wordToAddVector = new Vector<>();
             Vector<Integer> cols = new Vector<>(), rows = new Vector<>();
             ScrabbleTile x;
             String y;
@@ -261,23 +319,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     rowEnds = curRow - 1;
 
                     //checking
-                    if (word.length() > 1) {
-                        if (dic.isValidWord(word)) {
-                            int ii = rowStarts - 1;
-                            do {
-                                ++ii;
-                                x = (ScrabbleTile) findViewById(pool.getButtonID(ii, curColumn));
-                                x.setLocked(true);
-                                pool.setButtonLocked(ii, curColumn, true);
-                            }
-                            while (ii != rowEnds);
-                            dic.removeWord(word);
-                            curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                            curPlayer.emptyPLAYER_SKIPPED();
-                            //if one word played -raise flag
-                            flagIfWordPlayed = true;
-                        }
+                    if (word.length() > 1 && dic.isValidWord(word)) {
+                        wordToAddVector.add(WordToAdd.newBuilder()
+                                .setWord(word)
+                                .setColumnEnds(curColumn).setColumnStarts(curColumn)
+                                .setRowEnds(rowEnds).setRowStarts(rowStarts)
+                                .setCurrentColumn(curColumn).build());
                     }
+
                     word = "";
                 }//while flag
             }//for i
@@ -326,43 +375,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     columnEnds = curColumn - 1;
 
                     //checking
-                    if (word.length() > 1) {
-                        if (dic.isValidWord(word)) {
-                            int jj = columnStarts - 1;
-                            do {
-                                ++jj;
-                                x = (ScrabbleTile) findViewById(pool.getButtonID(curRow, jj));
-                                x.setLocked(true);
-                                pool.setButtonLocked(curRow, jj, true);
-                            }
-                            while (jj != columnEnds);
-                            dic.removeWord(word);
-                            curPlayer.updateScore(getWordReward(word, rowStarts, columnStarts, rowEnds, columnEnds));
-                            curPlayer.emptyPLAYER_SKIPPED();
-                            //if one word played -raise flag
-                            flagIfWordPlayed = true;
-                        }
+                    if (word.length() > 1 && dic.isValidWord(word)) {
+                        wordToAddVector.add(WordToAdd.newBuilder()
+                                .setWord(word)
+                                .setColumnEnds(columnEnds).setColumnStarts(columnStarts)
+                                .setRowEnds(curRow).setRowStarts(curRow)
+                                .setCurrentRow(curRow).build());
                     }
                     word = "";
                 }//while flag
             }//for i
 
-
-            //if nor 1 one word played - turn is stays over current player
-            if (!flagIfWordPlayed) {
-                SubmitToasting();
-            } else {
-                if (pool.isUnlockedButtonOnPool()) {
-                    Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
+            DepthFirstSearch_Iterative deepSearch;
+            //if there are words to add then add
+            if (!wordToAddVector.isEmpty()) {
+                deepSearch = new DepthFirstSearch_Iterative();
+                //if graph is svyaznyi
+                if (deepSearch.run(pool, wordToAddVector)) {
+                    for (WordToAdd w : wordToAddVector) {
+                        submitWord(w);
+                    }
+                    //if nor 1 one word played - turn is stays over current player
+                    if (!flagIfWordPlayed) {
+                        SubmitToasting();
+                    } else {
+                        if (pool.isUnlockedButtonOnPool()) {
+                            Toast.makeText(MainActivity.this, R.string.toast_shake, Toast.LENGTH_SHORT).show();
+                        } else {
+                            changeCurrentPlayer();
+                            fillRack();//ask new word to rack
+                            flagIfWordPlayed = false;
+                        }
+                    }
                 } else {
-                    changeCurrentPlayer();
-                    fillRack();//ask new word to rack
-                    flagIfWordPlayed = false;
+                    NotConnectedToasting();
                 }
+            }
+            else
+            {
+                SubmitToasting();
             }
         }
     };
     Thread thread;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -373,7 +429,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         loadGameResolution();
-         thread = new Thread(new Runnable() {
+        thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 loadDataWithScanner();
@@ -381,19 +437,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
         thread.start();
 
+        Toast.makeText(MainActivity.this, R.string.toast_loading, Toast.LENGTH_SHORT).show();
+
         loadDistribution();
-
         newGame();
-
         loadSubmitButton();
     }
 
     private void ShakeToasting() {
-        Toast.makeText(MainActivity.this, R.string.StringForToast_shake, Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, R.string.toast_shake, Toast.LENGTH_SHORT).show();
+    }
+
+    private void NotConnectedToasting() {
+        Toast.makeText(MainActivity.this, R.string.toast_connected, Toast.LENGTH_SHORT).show();
     }
 
     private void SubmitToasting() {
-        Toast.makeText(MainActivity.this, R.string.StringForToast_submit, Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, R.string.toast_submit, Toast.LENGTH_SHORT).show();
     }
 
     private void reloadGame() {

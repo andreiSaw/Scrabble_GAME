@@ -27,7 +27,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.activity_pack.RecyclerViewActivity"
+            android:name="com.activity_pack.WordsViewActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity

@@ -1,13 +1,15 @@
 package com.tools_pack;
 
+import android.util.Pair;
+
 import java.util.Objects;
 import java.util.Vector;
 
-public class Board {
+public class Board implements Cloneable {
     /*
     builder pattern https://habrahabr.ru/post/244521/
      */
-    private final static int[][] bonusgrid = ScrabbleTile.bonusGrid;
+    protected final static int[][] bonusgrid = ScrabbleTile.bonusGrid;
     int[][] masOfIDs;
     String[][] valueBoard;
     private int POOL_SIZE;
@@ -28,6 +30,25 @@ public class Board {
 
     public static Builder newBuilder() {
         return new Board().new Builder();
+    }
+
+    protected Object clone() throws CloneNotSupportedException {
+
+        Board clone = (Board) super.clone();
+
+        // make the shallow copy of the object of type Department
+        clone.lockedBoard = new boolean[POOL_SIZE][POOL_SIZE];
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                clone.lockedBoard[i][j] = lockedBoard[i][j];
+            }
+        }
+        clone.valueBoard = valueBoard.clone();
+        clone.masOfIDs = masOfIDs.clone();
+        clone.emptyBoard = emptyBoard.clone();
+
+        return clone;
+
     }
 
     public int getButtonID(int i, int j) {
@@ -103,6 +124,18 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public Vector<Pair<Integer, Integer>> getLockedTiles() {
+        Vector<Pair<Integer, Integer>> myVector = new Vector<>();
+        for (int i = 0; i < POOL_SIZE; ++i) {
+            for (int j = 0; j < POOL_SIZE; ++j) {
+                if (isButtonLocked(i, j)) {
+                    myVector.add(new Pair<>(i, j));
+                }
+            }
+        }
+        return myVector;
     }
 
     public class Builder {

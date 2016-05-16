@@ -3,7 +3,6 @@
     <string name="title_activity_info_tab">InfoTab</string>
     <string name="StringForStartButton">S T A R T GAME</string>
     <string name="StringForInfoButton">I N F O</string>
-    <string name="title_activity_main2">Main2Activity</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -21,18 +20,24 @@
     <string name="drawer_item_2word">2-letters words</string>
     <string name="drawer_item_help">Help</string>
     <string name="drawer_item_newgame">New game</string>
-    <string name="StringForToast_shake">Submit at least one word and then shake your phone to move unplayed tiles down</string>
-    <string name="StringForToast_submit">Submit at least one word</string>
-    <string name="StringForMiddle">First turn should cover middle tile</string>
+    <string name="drawer_item_pass">Pass</string>
+    <string name="drawer_item_changerack">Change rack</string>
+    <string name="drawer_item_playedwords">Played words</string>
+
+    <string name="toast_shake">Submit at least one word and then shake your phone to move unplayed tiles down</string>
+    <string name="toast_submit">Submit at least one word</string>
+    <string name="toast_middle">First turn should cover middle tile</string>
+    <string name="toast_tiledown">Please put tile down on board or take it to the rack</string>
+    <string name="toast_loading">Please wait, dic is loading</string>
+    <string name="toast_dictionarydone">Dictionary is done, you can play right now</string>
+
     <string name="StringForShare">I\'m already using Scrabble Game. Try more yourself: https://goo.gl/DH8ifn</string>
 
     <string name="StringFor1Point">Cell gives you 1 point</string>
     <string name="StringFor2Points">Cell gives you 2 points</string>
     <string name="StringFor3Points">Cell gives you 3 points</string>
     <string name="StringForMiddleHelp">Cell also gives you 3 points but cell should be covered in first turn</string>
-    <string name="drawer_item_pass">Pass</string>
-    <string name="drawer_item_changerack">Change rack</string>
-    <string name="drawer_item_playedwords">Played words</string>
-    <string name="StringForPutTileDown">Please put tile down on board or take it to the rack</string>
+    <string name="toast_connected">Words not connected</string>
+
 
 </resources>
