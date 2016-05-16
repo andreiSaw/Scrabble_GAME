@@ -31,7 +31,7 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name="com.activity_pack.WordsListActivity"
+            android:name="com.activity_pack.TwoLettersWordsListActivity"
             android:screenOrientation="portrait" >
         </activity>
         <activity android:name="com.activity_pack.HelpActivity" >

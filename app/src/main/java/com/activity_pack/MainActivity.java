@@ -943,7 +943,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     //todo check if _letterbuf
                     //Например, включить виброрежим на 0.3 секунду
                     long mills = 300L;
-                    vibrate(mills);
+                   // vibrate(mills);
                 }
                 last_x = x;
                 last_y = y;
@@ -982,6 +982,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 ++i;
             }
+            vibrate(300L);
         }
     }
 }
