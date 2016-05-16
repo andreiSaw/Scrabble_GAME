@@ -26,4 +26,9 @@
     <string name="StringForToast_submit">Submit at least one word</string>
     <string name="StringForMiddle">First turn should cover middle tile</string>
     <string name="StringForShare">I\'m already using Scrabble Game. Try more yourself: https://goo.gl/DH8ifn</string>
+
+    <string name="button_test">BUTTON</string>
+    <string name="button_verticalMargin">button_vertical</string>
+    <string name="button_longTest">buonsdaflkjasdkvbljsbfdvjkbjsafkdvbjkbsa;dvbakdsbvsbdkv</string>
+    <string name="button_horizontalMargin">sdnm</string>
 </resources>

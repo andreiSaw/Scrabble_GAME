@@ -1,5 +1,6 @@
 package com.tools_pack;
 
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,11 +12,11 @@ import com.tools.R;
 
 import java.util.List;
 
-public class WordsViewActivity extends RecyclerView.Adapter<WordsViewActivity.ViewHolder> {
+public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.ViewHolder> {
 
     private List<String> records;
 
-    public WordsViewActivity(List<String> records) {
+    public WordsViewAdapter(List<String> records) {
         this.records = records;
     }
 
@@ -36,6 +37,7 @@ public class WordsViewActivity extends RecyclerView.Adapter<WordsViewActivity.Vi
             return;
         }
         viewHolder.name.setBackgroundResource(R.color.colorLightGreenTile);
+        viewHolder.name.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
     }
 
     @Override

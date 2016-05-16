@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
@@ -102,6 +103,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
                 Intent intent;
                 switch (str) {
+                    case "2-letters words":
+                        intent = new Intent(MainActivity.this, WordsListActivity.class);
+                        startActivity(intent);
+                        break;
                     case "About":
                         intent = new Intent(MainActivity.this, AboutActivity.class);
                         MainActivity.this.startActivity(intent);
@@ -433,8 +438,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         new PrimaryDrawerItem().withName("New Game").withIcon(FontAwesome.Icon.faw_play_circle).withIdentifier(3),
                         new PrimaryDrawerItem().withName("Pass").withIcon(FontAwesome.Icon.faw_arrow_circle_o_right),
                         new PrimaryDrawerItem().withName("Change rack").withIcon(FontAwesome.Icon.faw_arrow_circle_o_down),
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_about).withIcon(FontAwesome.Icon.faw_question),
                         new PrimaryDrawerItem().withName("Played words").withIcon(FontAwesome.Icon.faw_file_text),
+                        new PrimaryDrawerItem().withIcon(FontAwesome.Icon.faw_key).withName("2-letters words"),
+                        new DividerDrawerItem(),
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_about).withIcon(FontAwesome.Icon.faw_question),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_share).withIcon(FontAwesome.Icon.faw_paper_plane)).withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
                     public void onDrawerOpened(View drawerView) {
