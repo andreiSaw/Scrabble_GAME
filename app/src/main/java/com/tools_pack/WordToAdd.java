@@ -8,6 +8,14 @@ public class WordToAdd {
     private String word;
     private int rowStarts, rowEnds, columnStarts, columnEnds, curColumn, curRow;
 
+    private WordToAdd() {
+        // private constructor
+    }
+
+    public static Builder newBuilder() {
+        return new WordToAdd().new Builder();
+    }
+
     public int getRowStarts() {
         return rowStarts;
     }
@@ -34,6 +42,20 @@ public class WordToAdd {
 
     public String getWord() {
         return word;
+    }
+
+    public Vector<Pair<Integer, Integer>> getCoordinates() {
+        Vector<Pair<Integer, Integer>> coordinatesVector = new Vector<>();
+        if (columnStarts == columnEnds) {
+            for (int i = rowStarts; i <= rowEnds; ++i) {
+                coordinatesVector.add(new Pair<>(i, curColumn));
+            }
+        } else {
+            for (int i = columnStarts; i <= columnEnds; ++i) {
+                coordinatesVector.add(new Pair<>(curRow, i));
+            }
+        }
+        return coordinatesVector;
     }
 
     public class Builder {
@@ -75,38 +97,9 @@ public class WordToAdd {
             return this;
         }
 
-        public Builder setWord(String word)
-        {
-            WordToAdd.this.word=word;
+        public Builder setWord(String word) {
+            WordToAdd.this.word = word;
             return this;
         }
-    }
-
-    public Vector<Pair<Integer,Integer>> getCoordinates()
-    {
-        Vector<Pair<Integer,Integer>> coordinatesVector=new Vector<>();
-        if(columnStarts==columnEnds)
-        {
-            for(int i=rowStarts;i<=rowEnds;++i)
-            {
-                coordinatesVector.add(new Pair<>(i, curColumn));
-            }
-        }
-        else
-        {
-            for(int i=columnStarts;i<=columnEnds;++i)
-            {
-                coordinatesVector.add(new Pair<>(curRow, i));
-            }
-        }
-        return coordinatesVector;
-    }
-
-    public static Builder newBuilder() {
-        return new WordToAdd().new Builder();
-    }
-
-    private WordToAdd() {
-        // private constructor
     }
 }

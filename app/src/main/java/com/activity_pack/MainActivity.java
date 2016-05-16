@@ -55,6 +55,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final int SHAKE_THRESHOLD = 600;
     private final int POOL_SIZE = 7;
     protected Player curPlayer;
+    boolean fisetthread = false;
+    Thread thread;
     private Player p1, p2;
     private Rack rack;
     private Dictionary dic = new Dictionary();
@@ -166,60 +168,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
-
-    private void submitWordLeftToRight(WordToAdd wd) {
-        ScrabbleTile x;
-        int jj = wd.getColumnStarts() - 1;
-        do {
-            ++jj;
-            x = (ScrabbleTile) findViewById(pool.getButtonID(wd.getCurRow(), jj));
-            x.setLocked(true);
-            pool.setButtonLocked(wd.getCurRow(), jj, true);
-        }
-        while (jj != wd.getColumnEnds());
-        dic.removeWord(wd.getWord());
-        curPlayer.updateScore(getWordReward(wd.getWord(),
-                wd.getRowStarts(), wd.getColumnStarts(),
-                wd.getRowEnds(), wd.getColumnEnds()));
-        curPlayer.emptyPLAYER_SKIPPED();
-        //if one word played -raise flag
-        flagIfWordPlayed = true;
-    }
-
-    //  private void submitWordUpsideDown(String word, int rowStarts, int rowEnds, int columnStarts, int columnEnds, int curColumn) {
-    private void submitWordUpsideDown(WordToAdd wd) {
-
-        ScrabbleTile x;
-        int ii = wd.getRowStarts() - 1;
-
-        do {
-            ++ii;
-            x = (ScrabbleTile) findViewById(pool.getButtonID(ii, wd.getCurColumn()));
-            x.setLocked(true);
-            pool.setButtonLocked(ii, wd.getCurColumn(), true);
-        }
-        while (ii != wd.getRowEnds());
-        //delete word
-        dic.removeWord(wd.getWord());
-        curPlayer.updateScore(getWordReward(wd.getWord(),
-                wd.getRowStarts(), wd.getColumnStarts(),
-                wd.getRowEnds(), wd.getColumnEnds()));
-        curPlayer.emptyPLAYER_SKIPPED();
-        //if one word played -raise flag
-        flagIfWordPlayed = true;
-
-    }
-
-    private void submitWord(WordToAdd wordToAdd) {
-
-        if (wordToAdd.getColumnEnds() == wordToAdd.getColumnStarts()) {
-            submitWordUpsideDown(wordToAdd);
-        } else {
-            submitWordLeftToRight(wordToAdd);
-        }
-    }
-
-    boolean fisetthread = false;
     private boolean flagIfWordPlayed = false;
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
@@ -410,14 +358,63 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 } else {
                     NotConnectedToasting();
                 }
-            }
-            else
-            {
+            } else {
                 SubmitToasting();
             }
         }
     };
-    Thread thread;
+
+    private void submitWordLeftToRight(WordToAdd wd) {
+        ScrabbleTile x;
+        int jj = wd.getColumnStarts() - 1;
+        do {
+            ++jj;
+            x = (ScrabbleTile) findViewById(pool.getButtonID(wd.getCurRow(), jj));
+            x.setLocked(true);
+            pool.setButtonLocked(wd.getCurRow(), jj, true);
+        }
+        while (jj != wd.getColumnEnds());
+        dic.removeWord(wd.getWord());
+        curPlayer.updateScore(getWordReward(wd.getWord(),
+                wd.getRowStarts(), wd.getColumnStarts(),
+                wd.getRowEnds(), wd.getColumnEnds()));
+        curPlayer.emptyPLAYER_SKIPPED();
+        //if one word played -raise flag
+        flagIfWordPlayed = true;
+    }
+
+    //  private void submitWordUpsideDown(String word, int rowStarts, int rowEnds, int columnStarts, int columnEnds, int curColumn) {
+    private void submitWordUpsideDown(WordToAdd wd) {
+
+        ScrabbleTile x;
+        int ii = wd.getRowStarts() - 1;
+
+        do {
+            ++ii;
+            x = (ScrabbleTile) findViewById(pool.getButtonID(ii, wd.getCurColumn()));
+            x.setLocked(true);
+            pool.setButtonLocked(ii, wd.getCurColumn(), true);
+        }
+        while (ii != wd.getRowEnds());
+        //delete word
+        dic.removeWord(wd.getWord());
+        curPlayer.updateScore(getWordReward(wd.getWord(),
+                wd.getRowStarts(), wd.getColumnStarts(),
+                wd.getRowEnds(), wd.getColumnEnds()));
+        curPlayer.emptyPLAYER_SKIPPED();
+        //if one word played -raise flag
+        flagIfWordPlayed = true;
+
+    }
+
+    private void submitWord(WordToAdd wordToAdd) {
+
+        if (wordToAdd.getColumnEnds() == wordToAdd.getColumnStarts()) {
+            submitWordUpsideDown(wordToAdd);
+        } else {
+            submitWordLeftToRight(wordToAdd);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

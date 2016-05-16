@@ -1,8 +1,8 @@
 package com.activity_pack;
 
 import android.graphics.Typeface;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -11,6 +11,7 @@ import com.tools.R;
 
 public class TwoLettersWordsListActivity extends AppCompatActivity {
 
+    static String[] words_array;
     String _wordsString = "aa\n" +
             "ab\n" +
             "ad\n" +
@@ -119,8 +120,6 @@ public class TwoLettersWordsListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_two_letters_words_list);
         load();
     }
-
-    static String[] words_array;
 
     private void load() {
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.activivtywordsrelative);

@@ -1,7 +1,7 @@
 package com.activity_pack;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 
 import com.tools.R;
 
