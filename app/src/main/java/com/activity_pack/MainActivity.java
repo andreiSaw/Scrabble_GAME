@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Intent share = new Intent(android.content.Intent.ACTION_SEND);
                         share.setType("text/plain");
                         share.putExtra(Intent.EXTRA_TEXT, getString(R.string.StringForShare));
-                        startActivity(Intent.createChooser(share, "Share post"));
+                        startActivity(Intent.createChooser(share, getString(R.string.SharePost)));
                         break;
                     case "New game":
                         reloadGame();
@@ -767,7 +767,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         s = p1.toString() + "\n" + p2.toString();
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this, R.style.AppCompatAlertDialogStyle);
-        builder.setTitle("Congratulations!" + result)
+        builder.setTitle("Congratulations! " + result)
                 .setMessage(s)
                 .setCancelable(false)
                 .setNegativeButton("OK",

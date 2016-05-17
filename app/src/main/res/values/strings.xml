@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Scrabble</string>
+    <string name="app_name">myScrabble @Isaev</string>
     <string name="title_activity_info_tab">InfoTab</string>
     <string name="StringForStartButton">S T A R T GAME</string>
     <string name="StringForInfoButton">I N F O</string>
@@ -38,6 +38,7 @@
     <string name="StringFor3Points">Cell gives you 3 points</string>
     <string name="StringForMiddleHelp">Cell also gives you 3 points but cell should be covered in first turn</string>
     <string name="toast_connected">Words not connected</string>
+    <string name="SharePost">Share post</string>
 
 
 </resources>

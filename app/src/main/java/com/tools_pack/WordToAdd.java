@@ -5,6 +5,9 @@ import android.util.Pair;
 import java.util.Vector;
 
 public class WordToAdd {
+    /*
+   builder pattern https://habrahabr.ru/post/244521/
+    */
     private String word;
     private int rowStarts, rowEnds, columnStarts, columnEnds, curColumn, curRow;
 

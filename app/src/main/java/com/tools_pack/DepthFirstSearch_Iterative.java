@@ -5,7 +5,9 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class DepthFirstSearch_Iterative {
-
+/*
+https://algocoding.wordpress.com/2014/08/25/depth-first-search-java-and-python-implementation/
+ */
     // Use a stack for the iterative DFS version
     public void dfs_iterative(ArrayList<ArrayList<Integer>> adj, int s, Vector<Integer> vector) {
         boolean[] visited = new boolean[adj.size()];
@@ -91,35 +93,6 @@ public class DepthFirstSearch_Iterative {
             }
         }
         Vector<Integer> vector = new Vector<>();
-/*
-
-        // insert neighbors of vertex 0 into adjacency list for vertex 0
-        adjLists.get(0).add(1);
-        adjLists.get(0).add(2);
-        adjLists.get(0).add(3);
-
-        // insert neighbors of vertex 1 into adjacency list for vertex 1
-        adjLists.get(1).add(5);
-        adjLists.get(1).add(6);
-
-        // insert neighbors of vertex 2 into adjacency list for vertex 2
-        adjLists.get(2).add(4);
-
-        // insert neighbors of vertex 3 into adjacency list for vertex 3
-        adjLists.get(3).add(2);
-        adjLists.get(3).add(4);
-
-        // insert neighbors of vertex 4 into adjacency list for vertex 4
-        adjLists.get(4).add(1);
-
-        // insert neighbors of vertex 5 into adjacency list for vertex 5
-        // -> nothing to do since vertex 5 has no neighbors
-
-        // insert neighbors of vertex 6 into adjacency list for vertex 5
-        adjLists.get(6).add(4);
-*/
-        // Print vertices in the order in which they are visited by dfs()
-
         dfs_iterative(adjLists, start, vector);
         return vector.containsAll(vectorofcoordinates);
     }
