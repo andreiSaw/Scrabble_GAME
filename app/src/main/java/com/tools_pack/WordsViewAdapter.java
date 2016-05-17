@@ -13,7 +13,9 @@ import com.tools.R;
 import java.util.List;
 
 public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.ViewHolder> {
-
+/*
+https://habrahabr.ru/post/237101/
+ */
     private List<String> records;
 
     public WordsViewAdapter(List<String> records) {

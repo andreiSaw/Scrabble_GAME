@@ -168,6 +168,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
+
+    private void TilePutingDowmnToasting() {
+        Toast.makeText(MainActivity.this, R.string.toast_tiledown, Toast.LENGTH_SHORT).show();
+    }
+
     private boolean flagIfWordPlayed = false;
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
@@ -186,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return;
             }
             if (!_letterBuf.equals("")) {
-                Toast.makeText(MainActivity.this, R.string.toast_tiledown, Toast.LENGTH_SHORT).show();
+                TilePutingDowmnToasting();
                 return;
             }
 
@@ -335,6 +340,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }//for i
 
             DepthFirstSearch_Iterative deepSearch;
+            //todo ты смотришь что граф свзяный, но не смотришь буква-то была хотя бы одна на поле до этого
             //if there are words to add then add
             if (!wordToAddVector.isEmpty()) {
                 deepSearch = new DepthFirstSearch_Iterative();
@@ -379,11 +385,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 wd.getRowStarts(), wd.getColumnStarts(),
                 wd.getRowEnds(), wd.getColumnEnds()));
         curPlayer.emptyPLAYER_SKIPPED();
-        //if one word played -raise flag
-        flagIfWordPlayed = true;
     }
 
-    //  private void submitWordUpsideDown(String word, int rowStarts, int rowEnds, int columnStarts, int columnEnds, int curColumn) {
     private void submitWordUpsideDown(WordToAdd wd) {
 
         ScrabbleTile x;
@@ -402,9 +405,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 wd.getRowStarts(), wd.getColumnStarts(),
                 wd.getRowEnds(), wd.getColumnEnds()));
         curPlayer.emptyPLAYER_SKIPPED();
-        //if one word played -raise flag
-        flagIfWordPlayed = true;
-
     }
 
     private void submitWord(WordToAdd wordToAdd) {
@@ -414,6 +414,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         } else {
             submitWordLeftToRight(wordToAdd);
         }
+        //if one word played -raise flag
+        flagIfWordPlayed = true;
     }
 
     @Override
@@ -740,13 +742,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void fillRack() {
-        //if (rusBag.getCount() > 0) {
         if (engBag.getCount() > 0) {
 
             String letters =
                     engBag.getLettersToString(countRack());
             fillRack(letters);
-            //simplify
         } else {
             showWindDialog();
         }
@@ -891,6 +891,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     bt.setMarginForTop();
                     bt.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                     bt.loadBonuses(i, j);
+                    bt.setText("");
+
+                    pool.setButtonValue(i, j, "");
+                    pool.setButtonEmpty(i, j, true);
+                    pool.setButtonLocked(i, j, false);
                 }
             }
         }
@@ -934,16 +939,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (speed > SHAKE_THRESHOLD) {
                     Vector unlockedTilesVector = pool.getUnclockedTiles();
                     if (!unlockedTilesVector.isEmpty()) {
+                        if (!Objects.equals(_letterBuf, "")) {
+                            TilePutingDowmnToasting();
+                            return;
+                        }
                         unlockedTilesToRack();
                         if (flagIfWordPlayed) {
                             changeCurrentPlayer();
                             fillRack();
+                            flagIfWordPlayed = false;
                         }
                     }
-                    //todo check if _letterbuf
-                    //Например, включить виброрежим на 0.3 секунду
-                    long mills = 300L;
-                    // vibrate(mills);
                 }
                 last_x = x;
                 last_y = y;
