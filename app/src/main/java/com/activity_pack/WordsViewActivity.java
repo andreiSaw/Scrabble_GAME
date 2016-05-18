@@ -11,6 +11,7 @@ import com.tools.R;
 import com.tools_pack.Player;
 import com.tools_pack.WordsViewAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -24,11 +25,12 @@ public class WordsViewActivity extends Activity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
-        Player p = (Player) extras.getSerializable("Player");
+        Player p = (Player) extras.getSerializable("Player1");
         List<String> records = p.getPlayedWords();
+        ArrayList<String> list = extras.getStringArrayList("Words");
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        WordsViewAdapter adapter = new WordsViewAdapter(records);
+        WordsViewAdapter adapter = new WordsViewAdapter(records, list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
 

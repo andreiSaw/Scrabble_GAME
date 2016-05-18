@@ -8,4 +8,6 @@
     <color name="colorLightGreenTile">#b0e57c</color>
     <color name="colorForRack">#b17ce5</color>
     <color name="colorForMiddle">#d82f89</color>
+    <color name="colorForPrimaryText">#3e50b4</color>
+    <color name="colorForAccentText">#ff3f80</color>
 </resources>

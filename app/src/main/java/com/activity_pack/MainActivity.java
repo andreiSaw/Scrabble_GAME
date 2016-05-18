@@ -46,6 +46,8 @@ import com.tools_pack.WordToAdd;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -65,6 +67,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Vector<Pair<String, Integer>> vectorOfLettersWorth;
     private EngBag engBag;
     private Drawer.Result drawerResult = null;
+
+    private ArrayList<String> vectorOfPlayedWords=new ArrayList<>();
+
     private DrawerLayout.DrawerListener mDrawerListenernew = new DrawerLayout.DrawerListener() {
         @Override
         public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -152,7 +157,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Intent intent1 = new Intent(MainActivity.this, WordsViewActivity.class);
                         Bundle bundle = new Bundle();
 
-                        bundle.putSerializable("Player", curPlayer);
+                        bundle.putStringArrayList("Words", vectorOfPlayedWords);
+
+                        bundle.putSerializable("Player1", p1);
 
                         intent1.putExtras(bundle);
 
@@ -903,9 +910,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void addWordToStore(String word) {
         curPlayer.addPlayedWord(word);
+        vectorOfPlayedWords.add(word);
     }
 
     private void loadDataWithScanner() {
+        /*
+        https://github.com/dwyl/english-words
+         */
         Scanner scanner = new Scanner(this.getResources().openRawResource(R.raw.words));
         while (scanner.hasNextLine()) {
             String nextline = scanner
