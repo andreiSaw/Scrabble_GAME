@@ -6,7 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.tools.R;
@@ -15,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.ViewHolder> {
+    ArrayList<Integer> _scores;
     /*
     https://habrahabr.ru/post/237101/
      */
@@ -25,9 +25,10 @@ public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.View
         this.records = records;
     }
 
-    public WordsViewAdapter(List<String> records, ArrayList<String> _all) {
+    public WordsViewAdapter(List<String> records, ArrayList<String> _all, ArrayList<Integer> scores) {
         this(records);
         _allrecords = _all;
+        _scores = scores;
     }
 
     @Override
@@ -40,16 +41,19 @@ public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         String _record = _allrecords.get(i);
-        int iconResourceId = 0;
-        viewHolder.icon.setImageResource(iconResourceId);
         viewHolder.name.setTypeface(Typeface.create("sans-serif-light", Typeface.BOLD));
         viewHolder.name.setTextColor(Color.WHITE);
-        viewHolder.name.setText(_record);
+        String text;
+
         if (records.contains(_record)) {
             viewHolder.name.setBackgroundResource(R.color.colorLightBlueTile);
-            return;
+            text = String.format("Player1 gets %d points. %s", _scores.get(i), _record.toUpperCase());
+        } else {
+            text = String.format("Player2 gets %d points. %s", _scores.get(i), _record.toUpperCase());
+            viewHolder.name.setBackgroundResource(R.color.colorLightGreenTile);
         }
-        viewHolder.name.setBackgroundResource(R.color.colorLightGreenTile);
+        viewHolder.name.setText(text);
+
     }
 
     @Override
@@ -60,13 +64,10 @@ public class WordsViewAdapter extends RecyclerView.Adapter<WordsViewAdapter.View
     class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView name;
-        private ImageView icon;
-
 
         public ViewHolder(View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.recyclerViewItemName);
-            icon = (ImageView) itemView.findViewById(R.id.recyclerViewItemIcon);
         }
     }
 }

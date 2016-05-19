@@ -9,9 +9,11 @@ public class Player implements Serializable {
     private int score = 0;
     private List<String> playedWords;
     private int PLAYER_SKIPPED = 0;
+    private String StringForButton = "S U B M I T\n";
 
     public Player(String name) {
         setName(name);
+        StringForButton += getName();
         playedWords = new ArrayList<>();
     }
 
@@ -61,5 +63,9 @@ public class Player implements Serializable {
 
     public void emptyPLAYER_SKIPPED() {
         this.PLAYER_SKIPPED = 0;
+    }
+
+    public String getStringForButton() {
+        return StringForButton;
     }
 }

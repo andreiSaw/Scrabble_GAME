@@ -2,7 +2,6 @@ package com.tools_pack;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.widget.Button;
@@ -20,7 +19,7 @@ public class ScrabbleTile extends Button {
             {DBLP, ONEP, ONEP, ONEP, ONEP, ONEP, DBLP},
             {ONEP, DBLP, TRPP, TRPP, TRPP, DBLP, ONEP},
             {ONEP, TRPP, DBLP, ONEP, DBLP, TRPP, ONEP},
-            {ONEP, TRPP, ONEP, TRPP, ONEP, TRPP, ONEP},
+            {ONEP, TRPP, ONEP, ONEP, ONEP, TRPP, ONEP},
             {ONEP, TRPP, DBLP, ONEP, DBLP, TRPP, ONEP},
             {ONEP, DBLP, TRPP, TRPP, TRPP, DBLP, ONEP},
             {DBLP, ONEP, ONEP, ONEP, ONEP, ONEP, DBLP}
@@ -36,7 +35,6 @@ public class ScrabbleTile extends Button {
 
     public ScrabbleTile(Context context) {
         super(context);
-        //  listen();
         setTextSize();
         this.setTypeface(null, Typeface.BOLD);
         initWH();
@@ -44,19 +42,16 @@ public class ScrabbleTile extends Button {
 
     public ScrabbleTile(Context context, AttributeSet attrs) {
         super(context, attrs);
-        // listen();
         initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        //listen();
         initWH();
     }
 
     public ScrabbleTile(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        // listen();
         initWH();
     }
 
@@ -90,29 +85,6 @@ public class ScrabbleTile extends Button {
                 this.setBackgroundResource(R.color.colorLightPinkTile);
                 break;
         }
-    }
-
-    private void listen() {
-        this.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (Objects.equals(getText().toString(), "") || Objects.equals(getText().toString(), " ")) {
-                    setEmpty(true);
-                } else {
-                    setEmpty(false);
-                }
-            }
-        });
     }
 
     public void setMargins() {

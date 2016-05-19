@@ -25,7 +25,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mikepenz.iconics.typeface.FontAwesome;
@@ -47,7 +46,6 @@ import com.tools_pack.WordToAdd;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -59,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected Player curPlayer;
     boolean fisetthread = false;
     Thread thread;
+    Button sbmButton;
     private Player p1, p2;
     private Rack rack;
     private Dictionary dic = new Dictionary();
@@ -67,9 +66,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Vector<Pair<String, Integer>> vectorOfLettersWorth;
     private EngBag engBag;
     private Drawer.Result drawerResult = null;
-
-    private ArrayList<String> vectorOfPlayedWords=new ArrayList<>();
-
+    private ArrayList<Integer> arrayListOfScoredPoints = new ArrayList<>();
+    private ArrayList<String> arrayListOfPlayedWords = new ArrayList<>();
     private DrawerLayout.DrawerListener mDrawerListenernew = new DrawerLayout.DrawerListener() {
         @Override
         public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -133,7 +131,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         if (pool.isUnlockedButtonOnPool()) {
                             ShakeToasting();
                         } else {
-                            if (curPlayer.getPLAYER_SKIPPED() == 1) {
+                            if (p1.getPLAYER_SKIPPED() == 1 && p2.getPLAYER_SKIPPED() == 2 ||
+                                    p1.getPLAYER_SKIPPED() == 2 && p2.getPLAYER_SKIPPED() == 1) {
                                 showWindDialog();
                                 reloadGame();
                             } else {
@@ -157,9 +156,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         Intent intent1 = new Intent(MainActivity.this, WordsViewActivity.class);
                         Bundle bundle = new Bundle();
 
-                        bundle.putStringArrayList("Words", vectorOfPlayedWords);
+                        bundle.putStringArrayList("Words", arrayListOfPlayedWords);
 
                         bundle.putSerializable("Player1", p1);
+
+                        bundle.putIntegerArrayList("Points", arrayListOfScoredPoints);
 
                         intent1.putExtras(bundle);
 
@@ -175,11 +176,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     };
-
-    private void TilePutingDowmnToasting() {
-        Toast.makeText(MainActivity.this, R.string.toast_tiledown, Toast.LENGTH_SHORT).show();
-    }
-
     private boolean flagIfWordPlayed = false;
     private Button.OnClickListener submitButtonListener = new Button.OnClickListener() {
 
@@ -377,6 +373,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    private void TilePutingDowmnToasting() {
+        Toast.makeText(MainActivity.this, R.string.toast_tiledown, Toast.LENGTH_SHORT).show();
+    }
+
     private void submitWordLeftToRight(WordToAdd wd) {
         ScrabbleTile x;
         int jj = wd.getColumnStarts() - 1;
@@ -388,9 +388,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         while (jj != wd.getColumnEnds());
         dic.removeWord(wd.getWord());
-        curPlayer.updateScore(getWordReward(wd.getWord(),
+        arrayListOfScoredPoints.add(getWordReward(wd.getWord(),
                 wd.getRowStarts(), wd.getColumnStarts(),
                 wd.getRowEnds(), wd.getColumnEnds()));
+        curPlayer.updateScore(arrayListOfScoredPoints.get(arrayListOfScoredPoints.size() - 1));
         curPlayer.emptyPLAYER_SKIPPED();
     }
 
@@ -408,9 +409,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         while (ii != wd.getRowEnds());
         //delete word
         dic.removeWord(wd.getWord());
-        curPlayer.updateScore(getWordReward(wd.getWord(),
+        arrayListOfScoredPoints.add(getWordReward(wd.getWord(),
                 wd.getRowStarts(), wd.getColumnStarts(),
                 wd.getRowEnds(), wd.getColumnEnds()));
+        curPlayer.updateScore(arrayListOfScoredPoints.get(arrayListOfScoredPoints.size() - 1));
         curPlayer.emptyPLAYER_SKIPPED();
     }
 
@@ -464,7 +466,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void reloadGame() {
         loadWordsFromPlaersToDic();
+        arrayListOfPlayedWords = new ArrayList<>();
+        arrayListOfScoredPoints = new ArrayList<>();
         newGame();
+        sbmButton.setText(curPlayer.getStringForButton());
     }
 
     private void newGame() {
@@ -584,8 +589,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private void loadSubmitButton() {
         int _margin = 5;
         //TODO нормальная кнопка
-        Button sbmButton = new Button(this);
-        sbmButton.setText("S U B M I T");
+        sbmButton = new Button(this);
+        sbmButton.setText(R.string.StringForSumbitButton);
         sbmButton.setBackgroundResource(R.color.colorForMiddle);
         RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.secondRelativeLayout);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -599,6 +604,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sbmButton.setId(View.generateViewId());
 
         sbmButton.setOnClickListener(submitButtonListener);
+
+        sbmButton.setText(curPlayer.getStringForButton());
 
         relativeLayout.addView(sbmButton);
     }
@@ -623,8 +630,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             curPlayer = p1;
         }
         Toast.makeText(MainActivity.this, String.format("Now is %s's turn", curPlayer.getName()), Toast.LENGTH_SHORT).show();
-        TextView tv = (TextView) findViewById(R.id.playerTextView);
-        tv.setText(curPlayer.getName());
+        sbmButton.setText(curPlayer.getStringForButton());
     }
 
     private int getWordReward(String word, int istarts, int jstarts, int iends, int jends) {
@@ -910,7 +916,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private void addWordToStore(String word) {
         curPlayer.addPlayedWord(word);
-        vectorOfPlayedWords.add(word);
+        arrayListOfPlayedWords.add(word);
     }
 
     private void loadDataWithScanner() {

@@ -12,7 +12,7 @@ import com.tools.R;
 public class TwoLettersWordsListActivity extends AppCompatActivity {
 
     static String[] words_array;
-    String _wordsString = "aa\n" +
+    final String _wordsString = "aa\n" +
             "ab\n" +
             "ad\n" +
             "ae\n" +

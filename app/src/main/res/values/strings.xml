@@ -36,9 +36,19 @@
     <string name="StringFor1Point">Cell gives you 1 point</string>
     <string name="StringFor2Points">Cell gives you 2 points</string>
     <string name="StringFor3Points">Cell gives you 3 points</string>
-    <string name="StringForMiddleHelp">Cell also gives you 3 points but cell should be covered in first turn</string>
+    <string name="StringForMiddleHelp">Cell also gives you 1 point but cell should be covered in first turn</string>
     <string name="toast_connected">Words not connected</string>
     <string name="SharePost">Share post</string>
-
+    <string name="StringForSumbitButton">S U B M I T</string>
+    <string name="aftermaking">After making word - press submit button</string>
+    <string name="ifokthen">If ok, then turn goes next, U get points</string>
+    <string name="onlyleft">Only left-to-right or up-down</string>
+    <string name="youcanmake">You can make words only horizontally or vertically, not diagonally</string>
+    <string name="justpickone">Just pick one tile (letter) and try</string>
+    <string name="uneedtomake">U need to make words from letters</string>
+    <string name="stringplay">P L A Y !</string>
+    <string name="stringfeatures">u can pass turn, change rack, skim played words</string>
+    <string name="stringmenu">use more features in menu</string>
+    <string name="stringshkae">Shake your phone If there are not used tiles on board</string>
 
 </resources>

@@ -28,10 +28,22 @@
             />
 
         <Button
-            android:id="@+id/button2points"
+            android:id="@+id/buttonMiddleHelp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/button1point"
+            android:layout_margin="5dp"
+            android:background="@color/colorForMiddle"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/StringForMiddleHelp"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/button2points"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonMiddleHelp"
             android:layout_margin="5dp"
             android:background="@color/colorLightGreenTile"
             android:fontFamily="sans-serif-light"
@@ -52,15 +64,125 @@
             />
 
         <Button
-            android:id="@+id/buttonMiddleHelp"
+            android:id="@+id/buttonwordWordsFromLetters"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/button3points"
             android:layout_margin="5dp"
-            android:background="@color/colorForMiddle"
+            android:background="@color/colorForRack"
             android:fontFamily="sans-serif-light"
-            android:text="@string/StringForMiddleHelp"
+            android:text="@string/uneedtomake"
             android:textStyle="bold"
             />
+
+        <Button
+            android:id="@+id/buttonwordTry"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordWordsFromLetters"
+            android:layout_margin="5dp"
+            android:background="@color/colorLightBlueTile"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/justpickone"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordStraight"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordTry"
+            android:layout_margin="5dp"
+            android:background="@color/colorForMiddle"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/youcanmake"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordDirec"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordStraight"
+            android:layout_margin="5dp"
+            android:background="@color/colorLightGreenTile"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/onlyleft"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordSubmit"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordDirec"
+            android:layout_margin="5dp"
+            android:background="@color/colorLightPinkTile"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/aftermaking"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordok"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordSubmit"
+            android:layout_margin="5dp"
+            android:background="@color/colorForRack"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/ifokthen"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordShake"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordok"
+            android:layout_margin="5dp"
+            android:background="@color/colorLightBlueTile"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/stringshkae"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordMenu"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordShake"
+            android:layout_margin="5dp"
+            android:background="@color/colorForMiddle"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/stringmenu"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordFeatures"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordMenu"
+            android:layout_margin="5dp"
+            android:background="@color/colorLightGreenTile"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/stringfeatures"
+            android:textStyle="bold"
+            />
+
+        <Button
+            android:id="@+id/buttonwordplay"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/buttonwordFeatures"
+            android:layout_margin="5dp"
+            android:background="@color/colorLightPinkTile"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/stringplay"
+            android:textStyle="bold"
+            />
+
     </RelativeLayout>
+
 </ScrollView>

@@ -28,9 +28,10 @@ public class WordsViewActivity extends Activity {
         Player p = (Player) extras.getSerializable("Player1");
         List<String> records = p.getPlayedWords();
         ArrayList<String> list = extras.getStringArrayList("Words");
+        ArrayList<Integer> scores=extras.getIntegerArrayList("Points");
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        WordsViewAdapter adapter = new WordsViewAdapter(records, list);
+        WordsViewAdapter adapter = new WordsViewAdapter(records, list,scores);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
 

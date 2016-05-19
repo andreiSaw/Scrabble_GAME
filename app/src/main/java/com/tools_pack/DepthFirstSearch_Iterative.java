@@ -1,5 +1,7 @@
 package com.tools_pack;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.Vector;
@@ -34,7 +36,7 @@ public class DepthFirstSearch_Iterative {
                 }
             }
         }
-        System.out.println();
+        Log.d("test", "deepfirstseach complete");
     }
 
 

@@ -12,17 +12,4 @@
                android:scaleType="center"
                android:src="@drawable/back">
     </ImageView>
-
-    <TextView
-        android:id="@+id/playerTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:layout_margin="5dp"
-        android:text="@string/StringForButtonP1"
-        android:textAlignment="center"
-        android:textColor="#ffffff"
-        android:textSize="30sp"
-        />
 </RelativeLayout>
